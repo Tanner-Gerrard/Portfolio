@@ -21,7 +21,14 @@ interface Project {
   };
 }
 
-const BASE_IMAGE = './hero.jpg';
+import img01hero from './assets/01hero.jpg';
+import img02hero from './assets/02hero.jpg';
+import img03hero from './assets/03hero.jpg';
+import img04hero from './assets/04hero.jpg';
+import imgConnect from './assets/connect.jpg';
+import imgHero from './assets/hero.jpg';
+
+const BASE_IMAGE = imgHero;
 
 const PROJECTS: Project[] = [
   {
@@ -29,7 +36,7 @@ const PROJECTS: Project[] = [
     title: 'ALPTOUR PACK',
     subtitle: 'Vertical performance for alpine rock',
     year: '2026',
-    image: './01hero.jpg',
+    image: img01hero,
     specs: {
       weight: '310g',
       denier: '40D',
@@ -41,7 +48,7 @@ const PROJECTS: Project[] = [
     title: 'VENTOUR JACKET',
     subtitle: 'Precision wind-blocking for high exertion',
     year: '2026',
-    image: './02hero.jpg',
+    image: img02hero,
     specs: {
       weight: '245g',
       denier: '15D - 80D',
@@ -53,7 +60,7 @@ const PROJECTS: Project[] = [
     title: 'STRIDETOUR PANT',
     subtitle: 'Data-driven articulation for SS25',
     year: '2025',
-    image: './03hero.jpg',
+    image: img03hero,
     specs: {
       weight: '420g',
       denier: 'Stretch Woven',
@@ -65,7 +72,7 @@ const PROJECTS: Project[] = [
     title: 'CRACK GLOVE',
     subtitle: 'Textile innovation for technical routes',
     year: '2024',
-    image: './04hero.jpg',
+    image: img04hero,
     specs: {
       weight: 'Proprietary',
       denier: 'Leather',
@@ -73,6 +80,56 @@ const PROJECTS: Project[] = [
     },
   },
 ];
+
+interface NavContentProps {
+  className?: string;
+  view: 'index' | 'detail' | 'connect';
+  navTo: (newView: 'index' | 'detail' | 'connect') => void;
+}
+
+const NavContent = ({ className = "", view, navTo }: NavContentProps) => {
+  if (view === 'connect') {
+    return (
+      <nav className={className}>
+        <button 
+          onClick={() => navTo('index')}
+          className="text-technical-label text-black hover:text-dynasty transition-colors whitespace-nowrap uppercase"
+        >
+          Back to Index
+        </button>
+      </nav>
+    );
+  }
+  if (view === 'detail') {
+    return (
+      <nav className={className}>
+        <button 
+          onClick={() => navTo('index')}
+          className="text-technical-label text-black hover:text-dynasty transition-colors whitespace-nowrap uppercase"
+        >
+          Professional Work
+        </button>
+        <button 
+          onClick={() => navTo('connect')}
+          className="text-technical-label text-black hover:text-dynasty transition-colors whitespace-nowrap uppercase"
+        >
+          Connect
+        </button>
+      </nav>
+    );
+  }
+  return (
+    <nav className={className}>
+      <button onClick={() => navTo('index')} className="text-technical-label text-black hover:text-dynasty transition-colors uppercase whitespace-nowrap">Professional Work</button>
+      <button 
+        onClick={() => navTo('connect')} 
+        className="text-technical-label text-black hover:text-dynasty transition-colors uppercase whitespace-nowrap"
+      >
+        Connect
+      </button>
+    </nav>
+  );
+};
 
 export default function App() {
   const [activeProject, setActiveProject] = useState<Project>(PROJECTS[0]);
@@ -93,51 +150,6 @@ export default function App() {
     setIsMenuOpen(false);
     if (newView === 'index') setHoveredProject(null);
   };
-
-  const NavContent = ({ className = "" }: { className?: string }) => {
-    if (view === 'connect') {
-      return (
-        <nav className={className}>
-          <button 
-            onClick={() => navTo('index')}
-            className="text-technical-label text-black hover:text-dynasty transition-colors whitespace-nowrap uppercase"
-          >
-            Back to Index
-          </button>
-        </nav>
-      );
-    }
-    if (view === 'detail') {
-      return (
-        <nav className={className}>
-          <button 
-            onClick={() => navTo('index')}
-            className="text-technical-label text-black hover:text-dynasty transition-colors whitespace-nowrap uppercase"
-          >
-            Professional Work
-          </button>
-          <button 
-            onClick={() => navTo('connect')}
-            className="text-technical-label text-black hover:text-dynasty transition-colors whitespace-nowrap uppercase"
-          >
-            Connect
-          </button>
-        </nav>
-      );
-    }
-    return (
-      <nav className={className}>
-        <button onClick={() => navTo('index')} className="text-technical-label text-black hover:text-dynasty transition-colors uppercase whitespace-nowrap">Professional Work</button>
-        <button 
-          onClick={() => navTo('connect')} 
-          className="text-technical-label text-black hover:text-dynasty transition-colors uppercase whitespace-nowrap"
-        >
-          Connect
-        </button>
-      </nav>
-    );
-  };
-
   if (view === 'connect') {
     return (
       <div className="min-h-screen bg-surface font-sans selection:bg-dynasty/20 flex flex-col">
@@ -150,7 +162,7 @@ export default function App() {
               Tanner Gerrard
             </button>
             <div className="flex items-center gap-8">
-              <NavContent className="hidden xl:flex items-center gap-8" />
+              <NavContent className="hidden xl:flex items-center gap-8" view={view} navTo={navTo} />
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="xl:hidden p-2 hover:text-dynasty transition-colors"
@@ -169,7 +181,7 @@ export default function App() {
                 exit={{ height: 0, opacity: 0 }}
                 className="xl:hidden bg-surface border-b border-outline overflow-hidden px-8 pb-8"
               >
-                <NavContent className="flex flex-col gap-4 pt-4" />
+                <NavContent className="flex flex-col gap-4 pt-4" view={view} navTo={navTo} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -217,7 +229,7 @@ export default function App() {
 
           <div className="aspect-[3/4] lg:aspect-auto h-full max-h-[80vh] bg-charcoal relative overflow-hidden group">
             <img 
-              src="./connect.jpg" 
+              src={imgConnect} 
               alt="Tanner Gerrard" 
               className="w-full h-full object-cover transition-all duration-700" 
             />
@@ -240,7 +252,7 @@ export default function App() {
               Tanner Gerrard
             </button>
             <div className="flex items-center gap-4 sm:gap-8">
-              <NavContent className="hidden xl:flex items-center gap-8 lg:gap-12" />
+              <NavContent className="hidden xl:flex items-center gap-8 lg:gap-12" view={view} navTo={navTo} />
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="xl:hidden p-2 hover:text-dynasty transition-colors"
@@ -259,7 +271,7 @@ export default function App() {
                 exit={{ height: 0, opacity: 0 }}
                 className="xl:hidden bg-surface border-b border-outline overflow-hidden px-8 pb-8"
               >
-                <NavContent className="flex flex-col gap-4 pt-4" />
+                <NavContent className="flex flex-col gap-4 pt-4" view={view} navTo={navTo} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -465,7 +477,7 @@ export default function App() {
                 Tanner Gerrard
               </button>
               <div className="flex items-center gap-4 sm:gap-8">
-                <NavContent className="hidden xl:flex items-center gap-8 lg:ml-auto" />
+                <NavContent className="hidden xl:flex items-center gap-8 lg:ml-auto" view={view} navTo={navTo} />
                 <button 
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className="xl:hidden p-2 hover:text-dynasty transition-colors"
@@ -484,7 +496,7 @@ export default function App() {
                   exit={{ height: 0, opacity: 0 }}
                   className="xl:hidden bg-surface border-t border-outline overflow-hidden px-8 pb-8"
                 >
-                  <NavContent className="flex flex-col gap-4 pt-4" />
+                  <NavContent className="flex flex-col gap-4 pt-4" view={view} navTo={navTo} />
                 </motion.div>
               )}
             </AnimatePresence>
