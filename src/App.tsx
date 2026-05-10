@@ -21,12 +21,12 @@ interface Project {
   };
 }
 
-import img01hero from './assets/01hero.jpg';
-import img02hero from './assets/02hero.jpg';
-import img03hero from './assets/03hero.jpg';
-import img04hero from './assets/04hero.jpg';
-import imgConnect from './assets/connect.jpg';
-import imgHero from './assets/hero.jpg';
+const img01hero = '/01hero.jpg';
+const img02hero = '/02hero.jpg';
+const img03hero = '/03hero.jpg';
+const img04hero = '/04hero.jpg';
+const imgConnect = '/connect.jpg';
+const imgHero = '/hero.jpg';
 
 const BASE_IMAGE = imgHero;
 
