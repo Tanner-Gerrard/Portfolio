@@ -21,7 +21,7 @@ interface Project {
   };
 }
 
-const BASE_IMAGE = '/hero.jpg';
+const BASE_IMAGE = './hero.jpg';
 
 const PROJECTS: Project[] = [
   {
@@ -29,7 +29,7 @@ const PROJECTS: Project[] = [
     title: 'ALPTOUR PACK',
     subtitle: 'Vertical performance for alpine rock',
     year: '2026',
-    image: '/01hero.jpg',
+    image: './01hero.jpg',
     specs: {
       weight: '310g',
       denier: '40D',
@@ -41,7 +41,7 @@ const PROJECTS: Project[] = [
     title: 'VENTOUR JACKET',
     subtitle: 'Precision wind-blocking for high exertion',
     year: '2026',
-    image: '/02hero.jpg',
+    image: './02hero.jpg',
     specs: {
       weight: '245g',
       denier: '15D - 80D',
@@ -53,7 +53,7 @@ const PROJECTS: Project[] = [
     title: 'STRIDETOUR PANT',
     subtitle: 'Data-driven articulation for SS25',
     year: '2025',
-    image: '/03hero.jpg',
+    image: './03hero.jpg',
     specs: {
       weight: '420g',
       denier: 'Stretch Woven',
@@ -65,7 +65,7 @@ const PROJECTS: Project[] = [
     title: 'CRACK GLOVE',
     subtitle: 'Textile innovation for technical routes',
     year: '2024',
-    image: '/04hero.jpg',
+    image: './04hero.jpg',
     specs: {
       weight: 'Proprietary',
       denier: 'Leather',
@@ -217,7 +217,7 @@ export default function App() {
 
           <div className="aspect-[3/4] lg:aspect-auto h-full max-h-[80vh] bg-charcoal relative overflow-hidden group">
             <img 
-              src="/connect.jpg" 
+              src="./connect.jpg" 
               alt="Tanner Gerrard" 
               className="w-full h-full object-cover transition-all duration-700" 
             />
