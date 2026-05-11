@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Instagram, Linkedin, Menu, X } from 'lucide-react';
 
@@ -84,7 +84,7 @@ const PROJECTS: Project[] = [
 interface NavContentProps {
   className?: string;
   view: 'index' | 'detail' | 'connect';
-  navTo: (newView: 'index' | 'detail' | 'connect') => void;
+  navTo: (newView: 'index' | 'detail' | 'connect', project?: Project) => void;
 }
 
 const NavContent = ({ className = "", view, navTo }: NavContentProps) => {
@@ -139,17 +139,43 @@ export default function App() {
   const [showMobileHero, setShowMobileHero] = useState(true);
 
   const handleProjectClick = (project: Project) => {
-    setActiveProject(project);
-    setView('detail');
-    setIsMenuOpen(false);
+    navTo('detail', project);
     window.scrollTo(0, 0);
   };
 
-  const navTo = (newView: 'index' | 'detail' | 'connect') => {
+  const navTo = (newView: 'index' | 'detail' | 'connect', project?: Project) => {
     setView(newView);
     setIsMenuOpen(false);
-    if (newView === 'index') setHoveredProject(null);
+    if (newView === 'index') {
+      setHoveredProject(null);
+      window.history.pushState({}, '', '/');
+    } else if (newView === 'detail' && project) {
+      setActiveProject(project);
+      window.history.pushState({}, '', `/project/${project.id}`);
+    } else if (newView === 'connect') {
+      window.history.pushState({}, '', '/connect');
+    }
   };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path === '/') {
+        setView('index');
+      } else if (path.startsWith('/project/')) {
+        const id = path.split('/')[2];
+        const project = PROJECTS.find(p => p.id === id);
+        if (project) {
+          setActiveProject(project);
+          setView('detail');
+        }
+      } else if (path === '/connect') {
+        setView('connect');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   if (view === 'connect') {
     return (
       <div className="min-h-screen bg-surface font-sans selection:bg-dynasty/20 flex flex-col">
