@@ -497,7 +497,7 @@ export default function App() {
       {/* Index View Layout: Left Column (Navigation & Content) */}
       <div className="w-full min-[480px]:w-[45%] xl:w-[50%] 2xl:w-[55%] flex flex-col h-full border-r border-outline overflow-y-auto lg:overflow-hidden font-sans">
           {/* Header */}
-          <header className="w-full lg:static lg:w-auto z-50 shrink-0 border-b border-outline lg:border-0">
+          <header className="w-full lg:static lg:w-auto z-50 shrink-0 lg:border-0">
             <div className="flex items-center justify-between px-8 lg:px-12 py-8">
               <button 
                 onClick={() => navTo('index')}
@@ -534,8 +534,8 @@ export default function App() {
           {/* Project List / Index */}
           <main className="flex-grow flex flex-col justify-center px-8 lg:px-12 py-12 lg:py-0">
             <div className="mb-16">
-              <p className="text-technical-label text-gray-400 mb-2">SELECTED WORKS // {activeProject.year}</p>
-              <h2 className="text-4xl lg:text-5xl font-bold tracking-tighter uppercase leading-[0.9] max-w-md">
+              <p className="text-technical-label text-dynasty mb-2">selected works // 2026</p>
+              <h2 className="text-4xl lg:text-5xl font-bold tracking-tighter uppercase leading-[0.9] max-w-lg">
                 Technical Apparel and Softgoods
               </h2>
             </div>
