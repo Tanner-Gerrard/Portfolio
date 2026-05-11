@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Instagram, Linkedin, Menu, X } from 'lucide-react';
 
 interface Project {
@@ -21,12 +21,12 @@ interface Project {
   };
 }
 
-const img01hero = '/01hero.jpg';
-const img02hero = '/02hero.jpg';
-const img03hero = '/03hero.jpg';
-const img04hero = '/04hero.jpg';
-const imgConnect = '/connect.jpg';
-const imgHero = '/hero.jpg';
+const img01hero = '01hero.jpg';
+const img02hero = '02hero.jpg';
+const img03hero = '03hero.jpg';
+const img04hero = '04hero.jpg';
+const imgConnect = 'connect.jpg';
+const imgHero = 'hero.jpg';
 
 const BASE_IMAGE = imgHero;
 
