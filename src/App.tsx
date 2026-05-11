@@ -144,33 +144,23 @@ export default function App() {
   };
 
   const navTo = (newView: 'index' | 'detail' | 'connect', project?: Project) => {
+    // Temporarily disabled routing to other pages
+    if (newView !== 'index') return;
+
     setView(newView);
     setIsMenuOpen(false);
     if (newView === 'index') {
       setHoveredProject(null);
       window.history.pushState({}, '', '/');
-    } else if (newView === 'detail' && project) {
-      setActiveProject(project);
-      window.history.pushState({}, '', `/project/${project.id}`);
-    } else if (newView === 'connect') {
-      window.history.pushState({}, '', '/connect');
     }
   };
 
   useEffect(() => {
     const handlePopState = () => {
-      const path = window.location.pathname;
-      if (path === '/') {
-        setView('index');
-      } else if (path.startsWith('/project/')) {
-        const id = path.split('/')[2];
-        const project = PROJECTS.find(p => p.id === id);
-        if (project) {
-          setActiveProject(project);
-          setView('detail');
-        }
-      } else if (path === '/connect') {
-        setView('connect');
+      // Temporarily forced to index page
+      setView('index');
+      if (window.location.pathname !== '/') {
+        window.history.replaceState({}, '', '/');
       }
     };
     window.addEventListener('popstate', handlePopState);
