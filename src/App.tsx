@@ -23,9 +23,9 @@ interface Project {
 
 const img01hero = 'images/01hero.jpg';
 const img02hero = 'images/02hero.jpg';
-const img03hero = 'images/03hero.jpg';
-const img04hero = 'images/04hero.jpg';
-const imgConnect = 'images/connect.jpg';
+const img03hero = 'images/03hero.avif';
+const img04hero = 'images/04hero.avif';
+const imgConnect = 'images/connect.avif';
 const imgHero = 'images/hero.jpg';
 
 const BASE_IMAGE = imgHero;
