@@ -34,7 +34,7 @@ const PROJECTS: Project[] = [
   {
     id: '01',
     title: 'ALPTOUR PACK',
-    subtitle: 'Vertical performance for alpine rock',
+    subtitle: 'Approach heavy. summit light',
     year: '2026',
     image: img01hero,
     specs: {
@@ -46,7 +46,7 @@ const PROJECTS: Project[] = [
   {
     id: '02',
     title: 'VENTOUR JACKET',
-    subtitle: 'Precision wind-blocking for high exertion',
+    subtitle: 'Mapped protection. zoned breathability',
     year: '2026',
     image: img02hero,
     specs: {
@@ -58,7 +58,7 @@ const PROJECTS: Project[] = [
   {
     id: '03',
     title: 'STRIDETOUR PANT',
-    subtitle: 'Data-driven articulation for SS25',
+    subtitle: 'High-output touring. mapped articulation',
     year: '2025',
     image: img03hero,
     specs: {
@@ -70,7 +70,7 @@ const PROJECTS: Project[] = [
   {
     id: '04',
     title: 'CRACK GLOVE',
-    subtitle: 'Textile innovation for technical routes',
+    subtitle: 'Utra-durable leather. sensitive for tight jams',
     year: '2024',
     image: img04hero,
     specs: {
