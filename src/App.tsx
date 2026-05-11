@@ -232,6 +232,7 @@ export default function App() {
               src={imgConnect} 
               alt="Tanner Gerrard" 
               className="w-full h-full object-cover transition-all duration-700" 
+              loading="lazy"
             />
           </div>
         </main>
@@ -315,6 +316,7 @@ export default function App() {
                       src="https://images.unsplash.com/photo-1551632811-561730d164a1?auto=format&fit=crop&q=80&w=600" 
                       alt="Detail 1" 
                       className="w-full h-full object-cover opacity-30 hover:opacity-100 transition-opacity" 
+                      loading="lazy"
                     />
                   </div>
                   <div className="aspect-square bg-surface-dim/30 overflow-hidden">
@@ -322,6 +324,7 @@ export default function App() {
                       src="https://images.unsplash.com/photo-1614743224377-669be740e557?auto=format&fit=crop&q=80&w=600" 
                       alt="Detail 2" 
                       className="w-full h-full object-cover opacity-30 hover:opacity-100 transition-opacity" 
+                      loading="lazy"
                     />
                   </div>
                 </motion.div>
