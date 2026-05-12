@@ -75,7 +75,11 @@ function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showMobileHero, setShowMobileHero] = useState(true);
 
+  const isDraftMode = import.meta.env.VITE_ENABLE_DRAFTS === 'true';
+
   const navTo = (newView: 'index' | 'detail' | 'connect', project?: Project) => {
+    if (!isDraftMode && newView !== 'index') return;
+
     setView(newView);
     setIsMenuOpen(false);
 
@@ -94,6 +98,12 @@ function AppContent() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
+
+      if (!isDraftMode && path !== '/') {
+        setView('index');
+        window.history.replaceState({}, '', '/');
+        return;
+      }
 
       if (path === '/') return setView('index');
       if (path === '/connect') return setView('connect');
@@ -139,7 +149,7 @@ function AppContent() {
       window.removeEventListener('error', handleGlobalError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
-  }, []);
+  }, [isDraftMode]);
 
   if (view === 'connect') {
     return <ConnectView view={view} navTo={navTo} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />;
