@@ -188,6 +188,52 @@ export default function App() {
   );
 }
 
+interface HeaderProps {
+  view: 'index' | 'detail' | 'connect';
+  navTo: (newView: 'index' | 'detail' | 'connect', project?: Project) => void;
+  isMenuOpen: boolean;
+  setIsMenuOpen: (isOpen: boolean) => void;
+  className?: string;
+}
+
+const Header = ({ view, navTo, isMenuOpen, setIsMenuOpen, className = "" }: HeaderProps) => {
+  return (
+    <header className={`z-50 shrink-0 ${className}`}>
+      <div className="flex items-center justify-between px-8 lg:px-12 py-8">
+        <button 
+          onClick={() => navTo('index')}
+          className="text-xl font-bold tracking-tighter uppercase text-left hover:text-dynasty transition-colors whitespace-nowrap"
+        >
+          Tanner Gerrard
+        </button>
+        <div className="flex items-center gap-4 sm:gap-8">
+          <NavContent className="hidden xl:flex items-center gap-8 lg:gap-12" view={view} navTo={navTo} />
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="xl:hidden p-2 hover:text-dynasty transition-colors"
+            aria-label="Toggle Menu"
+          >
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="xl:hidden bg-surface border-b border-outline overflow-hidden px-8 pb-8"
+          >
+            <NavContent className="flex flex-col gap-4 pt-4" view={view} navTo={navTo} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  );
+};
+
 function AppContent() {
   const [activeProject, setActiveProject] = useState<Project>(PROJECTS[0]);
   const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
@@ -260,49 +306,31 @@ function AppContent() {
       }
     };
 
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.log('DEBUG: Unhandled Promise Rejection', {
+        reason: event.reason,
+        promise: event.promise
+      });
+
+      // Check if it's the specific ReadableStream error
+      if (event.reason && String(event.reason).includes('[object ReadableStream]')) {
+        console.warn('RELEVANT: Potential stream handling error detected. This often happens if a network response is logged without being consumed.');
+      }
+    };
+
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, [isDraftMode]);
   if (view === 'connect') {
     return (
       <div className="min-h-screen bg-surface font-sans selection:bg-dynasty/20 flex flex-col">
-        <header className="bg-surface/80 backdrop-blur-md">
-          <div className="flex items-center justify-between px-8 lg:px-12 py-8">
-            <button 
-              onClick={() => navTo('index')}
-              className="text-xl font-bold tracking-tighter uppercase text-left hover:text-dynasty transition-colors"
-            >
-              Tanner Gerrard
-            </button>
-            <div className="flex items-center gap-8">
-              <NavContent className="hidden xl:flex items-center gap-8" view={view} navTo={navTo} />
-              <button 
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="xl:hidden p-2 hover:text-dynasty transition-colors"
-                aria-label="Toggle Menu"
-              >
-                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
-          </div>
-          
-          <AnimatePresence>
-            {isMenuOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="xl:hidden bg-surface border-b border-outline overflow-hidden px-8 pb-8"
-              >
-                <NavContent className="flex flex-col gap-4 pt-4" view={view} navTo={navTo} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </header>
+        <Header view={view} navTo={navTo} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} className="bg-surface/80 backdrop-blur-md" />
 
         <main className="max-w-[1600px] mx-auto pt-8 px-8 lg:px-12 pb-24 grid sm:grid-cols-2 gap-12 lg:gap-24 items-center">
           <div className="space-y-12">
@@ -361,39 +389,7 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-surface font-sans selection:bg-dynasty/20">
         {/* Detail Header */}
-        <header className="bg-surface/80 backdrop-blur-md">
-          <div className="flex items-center justify-between px-8 lg:px-12 py-8">
-            <button 
-              onClick={() => navTo('index')}
-              className="text-xl font-bold tracking-tighter uppercase text-left hover:text-dynasty transition-colors"
-            >
-              Tanner Gerrard
-            </button>
-            <div className="flex items-center gap-4 sm:gap-8">
-              <NavContent className="hidden xl:flex items-center gap-8 lg:gap-12" view={view} navTo={navTo} />
-              <button 
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="xl:hidden p-2 hover:text-dynasty transition-colors"
-                aria-label="Toggle Menu"
-              >
-                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
-          </div>
-
-          <AnimatePresence>
-            {isMenuOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="xl:hidden bg-surface border-b border-outline overflow-hidden px-8 pb-8"
-              >
-                <NavContent className="flex flex-col gap-4 pt-4" view={view} navTo={navTo} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </header>
+        <Header view={view} navTo={navTo} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} className="bg-surface/80 backdrop-blur-md" />
 
         <main className="max-w-[1600px] mx-auto pt-6 pb-32">
           {/* Hero Section */}
@@ -588,39 +584,7 @@ function AppContent() {
       {/* Index View Layout: Left Column (Navigation & Content) */}
       <div className="w-full min-[480px]:w-[45%] xl:w-[50%] 2xl:w-[55%] flex flex-col h-full border-r border-outline overflow-y-auto lg:overflow-hidden font-sans">
           {/* Header */}
-          <header className="w-full lg:static lg:w-auto z-50 shrink-0 lg:border-0">
-            <div className="flex items-center justify-between px-8 lg:px-12 py-8">
-              <button 
-                onClick={() => navTo('index')}
-                className="text-xl font-bold tracking-tighter uppercase text-left transition-colors whitespace-nowrap"
-              >
-                Tanner Gerrard
-              </button>
-              <div className="flex items-center gap-4 sm:gap-8">
-                <NavContent className="hidden xl:flex items-center gap-8 lg:ml-auto" view={view} navTo={navTo} />
-                <button 
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="xl:hidden p-2 hover:text-dynasty transition-colors"
-                  aria-label="Toggle Menu"
-                >
-                  {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                </button>
-              </div>
-            </div>
-
-            <AnimatePresence>
-              {isMenuOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="xl:hidden bg-surface border-t border-outline overflow-hidden px-8 pb-8"
-                >
-                  <NavContent className="flex flex-col gap-4 pt-4" view={view} navTo={navTo} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </header>
+          <Header view={view} navTo={navTo} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} className="w-full lg:static lg:w-auto lg:border-0" />
 
           {/* Project List / Index */}
           <main className="flex-grow flex flex-col justify-center px-8 lg:px-12 py-12 lg:py-0">

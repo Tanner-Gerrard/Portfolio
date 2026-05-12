@@ -1,0 +1,10 @@
+{
+  "$schema": "https://fallow.tools/schema.json",
+  "entry": ["src/main.tsx"],
+  "health": {
+    "thresholds": {
+      "cyclomatic": 15,
+      "cognitive": 15
+    }
+  }
+}
