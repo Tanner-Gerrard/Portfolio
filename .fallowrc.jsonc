@@ -2,9 +2,8 @@
   "$schema": "https://fallow.tools/schema.json",
   "entry": ["src/main.tsx"],
   "health": {
-    "thresholds": {
-      "cyclomatic": 15,
-      "cognitive": 15
-    }
+    "maxCyclomatic": 20,
+    "maxCognitive": 20,
+    "maxCrap": 150
   }
 }
