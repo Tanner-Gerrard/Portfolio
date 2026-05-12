@@ -3,9 +3,58 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, ErrorInfo, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Instagram, Linkedin, Menu, X } from 'lucide-react';
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  public state: ErrorBoundaryState = {
+    hasError: false
+  };
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-surface p-8 text-center">
+          <div className="max-w-md space-y-6">
+            <h1 className="text-4xl font-bold tracking-tighter uppercase">Something went wrong.</h1>
+            <p className="text-gray-600">The application encountered a technical error. Please try refreshing.</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-charcoal text-white text-technical-label hover:bg-dynasty transition-colors"
+            >
+              Refresh Application
+            </button>
+            {this.state.error && (
+              <pre className="mt-8 p-4 bg-gray-100 text-[10px] text-left overflow-auto max-h-40 font-mono text-charcoal">
+                {this.state.error.stack}
+              </pre>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 interface Project {
   id: string;
@@ -132,6 +181,14 @@ const NavContent = ({ className = "", view, navTo }: NavContentProps) => {
 };
 
 export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
+  );
+}
+
+function AppContent() {
   const [activeProject, setActiveProject] = useState<Project>(PROJECTS[0]);
   const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
   const [view, setView] = useState<'index' | 'detail' | 'connect'>('index');
@@ -186,9 +243,30 @@ export default function App() {
         setView('connect');
       }
     };
+
+    const handleGlobalError = (event: ErrorEvent) => {
+      // Log more details to help identify "Script error" causes
+      console.log('DEBUG: Global Error Event handled', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error
+      });
+      
+      // If it's a script error, it's likely CORS
+      if (event.message === 'Script error.') {
+        console.warn('CORS-masked error detected. Check for failed external scripts or Cross-Origin issues.');
+      }
+    };
+
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+    window.addEventListener('error', handleGlobalError);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('error', handleGlobalError);
+    };
+  }, [isDraftMode]);
   if (view === 'connect') {
     return (
       <div className="min-h-screen bg-surface font-sans selection:bg-dynasty/20 flex flex-col">
