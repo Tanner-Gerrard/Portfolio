@@ -15,9 +15,9 @@ interface Project {
   image: string;
   objectPosition?: string;
   specs: {
+    material: string;
+    movement: string;
     weight: string;
-    denier: string;
-    breathability: string;
   };
 }
 
@@ -38,9 +38,9 @@ const PROJECTS: Project[] = [
     year: '2026',
     image: img01hero,
     specs: {
-      weight: '310g',
-      denier: '40D',
-      breathability: 'RET < 6',
+      material: 'Ultra 200X',
+      movement: 'Sustained',
+      weight: '572g',
     },
   },
   {
@@ -50,9 +50,9 @@ const PROJECTS: Project[] = [
     year: '2026',
     image: img02hero,
     specs: {
-      weight: '245g',
-      denier: '15D - 80D',
-      breathability: 'Laminated',
+      material: '(Un)calendared 6.6 Nylon',
+      movement: 'Low Intensity',
+      weight: '350g',
     },
   },
   {
@@ -62,9 +62,9 @@ const PROJECTS: Project[] = [
     year: '2025',
     image: img03hero,
     specs: {
-      weight: '420g',
-      denier: 'Stretch Woven',
-      breathability: 'High',
+      material: 'Mechanical Stretch 6.6 Nylon',
+      movement: 'High Output',
+      weight: '347g',
     },
   },
   {
@@ -74,9 +74,9 @@ const PROJECTS: Project[] = [
     year: '2024',
     image: img04hero,
     specs: {
-      weight: 'Proprietary',
-      denier: 'Leather',
-      breathability: 'Maximum',
+      material: 'Leather & UHMWPE',
+      movement: 'High Output',
+      weight: '34g',
     },
   },
 ];
@@ -143,24 +143,47 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  const isDraftMode = import.meta.env.VITE_ENABLE_DRAFTS === 'true';
+
   const navTo = (newView: 'index' | 'detail' | 'connect', project?: Project) => {
-    // Temporarily disabled routing to other pages
-    if (newView !== 'index') return;
+    // If not in draft mode, restrict navigation to Index only
+    if (!isDraftMode && newView !== 'index') return;
 
     setView(newView);
     setIsMenuOpen(false);
     if (newView === 'index') {
       setHoveredProject(null);
       window.history.pushState({}, '', '/');
+    } else if (newView === 'detail' && project) {
+      setActiveProject(project);
+      window.history.pushState({}, '', `/project/${project.id}`);
+    } else if (newView === 'connect') {
+      window.history.pushState({}, '', '/connect');
     }
   };
 
   useEffect(() => {
     const handlePopState = () => {
-      // Temporarily forced to index page
-      setView('index');
-      if (window.location.pathname !== '/') {
+      const path = window.location.pathname;
+
+      // Force index if not in draft mode
+      if (!isDraftMode && path !== '/') {
+        setView('index');
         window.history.replaceState({}, '', '/');
+        return;
+      }
+
+      if (path === '/') {
+        setView('index');
+      } else if (path.startsWith('/project/')) {
+        const id = path.split('/')[2];
+        const project = PROJECTS.find(p => p.id === id);
+        if (project) {
+          setActiveProject(project);
+          setView('detail');
+        }
+      } else if (path === '/connect') {
+        setView('connect');
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -359,16 +382,16 @@ export default function App() {
 
                 <div className="grid grid-cols-2 gap-8 border-t border-outline pt-8">
                 <div>
+                  <p className="text-technical-label text-gray-400 mb-2">Movement</p>
+                  <p className="text-data-mono text-lg">{activeProject.specs.movement}</p>
+                </div>
+                <div>
                   <p className="text-technical-label text-gray-400 mb-2">Weight</p>
                   <p className="text-data-mono text-lg">{activeProject.specs.weight}</p>
                 </div>
                 <div>
-                  <p className="text-technical-label text-gray-400 mb-2">Breathability</p>
-                  <p className="text-data-mono text-lg">{activeProject.specs.breathability}</p>
-                </div>
-                <div>
-                  <p className="text-technical-label text-gray-400 mb-2">Primary Textile</p>
-                  <p className="text-data-mono text-lg">{activeProject.specs.denier}</p>
+                  <p className="text-technical-label text-gray-400 mb-2">Material</p>
+                  <p className="text-data-mono text-lg">{activeProject.specs.material}</p>
                 </div>
                 <div>
                   <p className="text-technical-label text-gray-400 mb-2">Design Status</p>
@@ -594,16 +617,16 @@ export default function App() {
           {hoveredProject && (
             <div className="absolute bottom-12 right-12 z-30 flex flex-col items-end gap-8 text-white">
               <div className="flex flex-col items-end">
+                <p className="text-technical-label opacity-40 mb-1">Movement</p>
+                <p className="text-data-mono text-lg text-right">{hoveredProject.specs.movement}</p>
+              </div>
+              <div className="flex flex-col items-end">
                 <p className="text-technical-label opacity-40 mb-1">Weight</p>
-                <p className="text-data-mono text-lg">{hoveredProject.specs.weight}</p>
+                <p className="text-data-mono text-lg text-right">{hoveredProject.specs.weight}</p>
               </div>
               <div className="flex flex-col items-end">
-                <p className="text-technical-label opacity-40 mb-1">Denier</p>
-                <p className="text-data-mono text-lg">{hoveredProject.specs.denier}</p>
-              </div>
-              <div className="flex flex-col items-end">
-                <p className="text-technical-label opacity-40 mb-1">Breathability</p>
-                <p className="text-data-mono text-lg">{hoveredProject.specs.breathability}</p>
+                <p className="text-technical-label opacity-40 mb-1">Material</p>
+                <p className="text-data-mono text-lg text-right">{hoveredProject.specs.material}</p>
               </div>
             </div>
           )}
