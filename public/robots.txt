@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: http://nihilalpine.com/sitemap.xml
+Sitemap: https://nihilalpine.com/sitemap.xml
