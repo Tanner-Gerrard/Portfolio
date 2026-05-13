@@ -16,6 +16,10 @@ export const PROJECTS: Project[] = [
     subtitle: 'Approach heavy. summit light',
     year: '2026',
     image: img01hero,
+    detailImages: [
+      '/images/process/detail/01detail-01.avif',
+      '/images/process/detail/01detail-02.avif'
+    ],
     specs: {
       material: 'Ultra 200X',
       movement: 'Sustained',

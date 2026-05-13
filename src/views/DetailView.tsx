@@ -39,17 +39,17 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
             >
               <div className="aspect-square bg-surface-dim/30 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1551632811-561730d164a1?auto=format&fit=crop&q=80&w=600" 
+                  src={activeProject.detailImages?.[0] || "https://images.unsplash.com/photo-1551632811-561730d164a1?auto=format&fit=crop&q=80&w=600"} 
                   alt="Detail 1" 
-                  className="w-full h-full object-cover opacity-30 hover:opacity-100 transition-opacity" 
+                  className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" 
                   loading="lazy"
                 />
               </div>
               <div className="aspect-square bg-surface-dim/30 overflow-hidden">
                  <img 
-                  src="https://images.unsplash.com/photo-1614743224377-669be740e557?auto=format&fit=crop&q=80&w=600" 
+                  src={activeProject.detailImages?.[1] || "https://images.unsplash.com/photo-1614743224377-669be740e557?auto=format&fit=crop&q=80&w=600"} 
                   alt="Detail 2" 
-                  className="w-full h-full object-cover opacity-30 hover:opacity-100 transition-opacity" 
+                  className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" 
                   loading="lazy"
                 />
               </div>
@@ -65,7 +65,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
               <div className="flex justify-between items-start">
                 <p className="text-xl md:text-2xl text-gray-500 uppercase tracking-tight leading-snug max-w-md">
                   {activeProject.subtitle}
-                 </p>
+                </p>
               </div>
             </div>
 

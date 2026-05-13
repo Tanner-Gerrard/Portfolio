@@ -52,9 +52,9 @@ export const IndexView = ({ view, navTo, isMenuOpen, setIsMenuOpen, showMobileHe
         <main className="flex-grow flex flex-col justify-center px-8 md:px-10 lg:px-12 py-12 lg:py-0">
           <div className="mb-16">
             <p className="text-technical-label text-dynasty mb-2">selected works // 2026</p>
-            <h2 className="text-4xl md:text-[2.75rem] lg:text-5xl font-bold tracking-tighter uppercase leading-[0.9] max-w-lg">
+            <h1 className="text-4xl md:text-[2.75rem] lg:text-5xl font-bold tracking-tighter uppercase leading-[0.9] max-w-lg">
               Technical Apparel and Softgoods
-            </h2>
+            </h1>
           </div>
 
           <nav 

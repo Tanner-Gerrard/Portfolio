@@ -5,6 +5,7 @@ export interface Project {
   year: string;
   image: string;
   objectPosition?: string;
+  detailImages?: [string, string] | string[];
   specs: {
     material: string;
     movement: string;

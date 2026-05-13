@@ -75,11 +75,7 @@ function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showMobileHero, setShowMobileHero] = useState(true);
 
-  const isDraftMode = import.meta.env.VITE_ENABLE_DRAFTS === 'true';
-
   const navTo = (newView: 'index' | 'detail' | 'connect', project?: Project) => {
-    if (!isDraftMode && newView !== 'index') return;
-
     setView(newView);
     setIsMenuOpen(false);
 
@@ -98,12 +94,6 @@ function AppContent() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-
-      if (!isDraftMode && path !== '/') {
-        setView('index');
-        window.history.replaceState({}, '', '/');
-        return;
-      }
 
       if (path === '/') return setView('index');
       if (path === '/connect') return setView('connect');
@@ -144,12 +134,45 @@ function AppContent() {
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('error', handleGlobalError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
+    // Initial path handle
+    handlePopState();
+
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('error', handleGlobalError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
-  }, [isDraftMode]);
+  }, []);
+
+  useEffect(() => {
+    const brand = "Alpine Equipment, Nothing Unnecessary";
+    let title = brand;
+    let description = "Tanner Gerrard is a Softgoods and Technical Apparel Designer specializing in Alpinism and high-performance outdoor equipment. Explore the NIHIL portfolio.";
+
+    if (view === 'detail') {
+      title = `${activeProject.title} | ${brand}`;
+      description = `Technical analysis and process archive for the ${activeProject.title}. ${activeProject.subtitle}. Designed by Tanner Gerrard.`;
+    } else if (view === 'connect') {
+      title = `Connect | ${brand}`;
+      description = "Get in touch with Tanner Gerrard for collaborations in Softgoods and Technical Apparel design.";
+    }
+
+    document.title = title;
+    
+    // Update meta description dynamically
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', description);
+    }
+    
+    let ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', title);
+    
+    let ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', description);
+
+  }, [view, activeProject]);
 
   if (view === 'connect') {
     return <ConnectView view={view} navTo={navTo} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />;
