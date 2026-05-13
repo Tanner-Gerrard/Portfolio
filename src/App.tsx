@@ -146,14 +146,14 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
-    let title = "NIHIL - Alpine Equipment, Nothing Unnecessary";
-    let description = "Tanner Gerrard is a Softgoods and Technical Apparel Designer specializing in Alpinism and high-performance outdoor equipment. Explore the NIHIL portfolio.";
+    let title = "Alpine Equipment, Nothing Unnecessary";
+    let description = "Tanner Gerrard is a Softgoods and Technical Apparel Designer specializing in Alpinism and high-performance outdoor equipment. Explore the nihil portfolio.";
 
     if (view === 'detail') {
-      title = `${activeProject.title} | NIHIL`;
+      title = `${activeProject.title} | nihil`;
       description = `Technical analysis and process archive for the ${activeProject.title}. ${activeProject.subtitle}. Designed by Tanner Gerrard.`;
     } else if (view === 'connect') {
-      title = `Connect | NIHIL`;
+      title = `Connect | nihil`;
       description = "Get in touch with Tanner Gerrard for collaborations in Softgoods and Technical Apparel design.";
     }
 
