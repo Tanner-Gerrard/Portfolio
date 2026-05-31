@@ -80,31 +80,61 @@ function AppContent() {
     setIsMenuOpen(false);
 
     const routes: Record<string, string> = {
-      index: '/',
-      connect: '/connect',
-      detail: project ? `/project/${project.id}` : '/'
+      index: '#/',
+      connect: '#/connect',
+      detail: project ? `#/project/${project.id}` : '#/'
     };
 
     if (newView === 'index') setHoveredProject(null);
     if (newView === 'detail' && project) setActiveProject(project);
 
-    window.history.pushState({}, '', routes[newView] || '/');
+    window.history.pushState({}, '', routes[newView] || '#/');
   };
 
   useEffect(() => {
-    const handlePopState = () => {
+    const handleNavigation = () => {
       const path = window.location.pathname;
+      const hash = window.location.hash;
 
-      if (path === '/') return setView('index');
-      if (path === '/connect') return setView('connect');
+      // Handle legacy slash-based routes smoothly by rewriting to hash routes
+      if (path === '/connect') {
+        window.history.replaceState({}, '', './#/connect');
+        setView('connect');
+        return;
+      }
+      if (path.startsWith('/project/')) {
+        const projectId = path.split('/')[2];
+        window.history.replaceState({}, '', `./#/project/${projectId}`);
+        const project = projectId ? PROJECTS.find(p => p.id === projectId) : null;
+        if (project) {
+          setActiveProject(project);
+          setView('detail');
+        } else {
+          setView('index');
+        }
+        return;
+      }
 
-      const match = path.match(/^\/project\/([^/]+)$/);
+      // Handle hash-based navigation
+      if (!hash || hash === '#/' || hash === '#') {
+        setView('index');
+        return;
+      }
+
+      if (hash === '#/connect') {
+        setView('connect');
+        return;
+      }
+
+      const match = hash.match(/^#\/project\/([^/]+)$/);
       const projectId = match ? match[1] : null;
       const project = projectId ? PROJECTS.find(p => p.id === projectId) : null;
       
       if (project) {
         setActiveProject(project);
         setView('detail');
+      } else {
+        setView('index');
       }
     };
 
@@ -131,15 +161,17 @@ function AppContent() {
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleNavigation);
+    window.addEventListener('hashchange', handleNavigation);
     window.addEventListener('error', handleGlobalError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
     
-    // Initial path handle
-    handlePopState();
+    // Initial path & hash handle
+    handleNavigation();
 
     return () => {
-      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('popstate', handleNavigation);
+      window.removeEventListener('hashchange', handleNavigation);
       window.removeEventListener('error', handleGlobalError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
