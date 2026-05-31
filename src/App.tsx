@@ -68,10 +68,51 @@ export default function App() {
   );
 }
 
+// fallow-ignore-next-line complexity
+function parseRoute(path: string, hash: string): { view: 'index' | 'detail' | 'connect'; project: Project } {
+  // Handle legacy slash-based routes smoothly
+  if (path === '/connect') {
+    return { view: 'connect', project: PROJECTS[0] };
+  }
+  if (path.startsWith('/project/')) {
+    const projectId = path.split('/')[2];
+    const project = projectId ? PROJECTS.find(p => p.id === projectId) : null;
+    if (project) {
+      return { view: 'detail', project };
+    }
+  }
+
+  // Handle hash-based navigation
+  if (!hash || hash === '#/' || hash === '#') {
+    return { view: 'index', project: PROJECTS[0] };
+  }
+
+  if (hash === '#/connect') {
+    return { view: 'connect', project: PROJECTS[0] };
+  }
+
+  const match = hash.match(/^#\/project\/([^/]+)$/);
+  const projectId = match ? match[1] : null;
+  const project = projectId ? PROJECTS.find(p => p.id === projectId) : null;
+
+  if (project) {
+    return { view: 'detail', project };
+  }
+
+  return { view: 'index', project: PROJECTS[0] };
+}
+
+function getInitialRouteState() {
+  const path = typeof window !== 'undefined' ? window.location.pathname : '';
+  const hash = typeof window !== 'undefined' ? window.location.hash : '';
+  return parseRoute(path, hash);
+}
+
 function AppContent() {
-  const [activeProject, setActiveProject] = useState<Project>(PROJECTS[0]);
+  const [initialData] = useState(() => getInitialRouteState());
+  const [activeProject, setActiveProject] = useState<Project>(initialData.project);
   const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
-  const [view, setView] = useState<'index' | 'detail' | 'connect'>('index');
+  const [view, setView] = useState<'index' | 'detail' | 'connect'>(initialData.view);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showMobileHero, setShowMobileHero] = useState(true);
 
@@ -99,43 +140,14 @@ function AppContent() {
       // Handle legacy slash-based routes smoothly by rewriting to hash routes
       if (path === '/connect') {
         window.history.replaceState({}, '', './#/connect');
-        setView('connect');
-        return;
-      }
-      if (path.startsWith('/project/')) {
+      } else if (path.startsWith('/project/')) {
         const projectId = path.split('/')[2];
         window.history.replaceState({}, '', `./#/project/${projectId}`);
-        const project = projectId ? PROJECTS.find(p => p.id === projectId) : null;
-        if (project) {
-          setActiveProject(project);
-          setView('detail');
-        } else {
-          setView('index');
-        }
-        return;
       }
 
-      // Handle hash-based navigation
-      if (!hash || hash === '#/' || hash === '#') {
-        setView('index');
-        return;
-      }
-
-      if (hash === '#/connect') {
-        setView('connect');
-        return;
-      }
-
-      const match = hash.match(/^#\/project\/([^/]+)$/);
-      const projectId = match ? match[1] : null;
-      const project = projectId ? PROJECTS.find(p => p.id === projectId) : null;
-      
-      if (project) {
-        setActiveProject(project);
-        setView('detail');
-      } else {
-        setView('index');
-      }
+      const state = parseRoute(path, hash);
+      setActiveProject(state.project);
+      setView(state.view);
     };
 
     const handleGlobalError = (event: ErrorEvent) => {

@@ -209,6 +209,32 @@ const ProcessVideoPlayer = ({ videoUrl, imageUrl, title }: { videoUrl: string; i
   );
 };
 
+const ExpandedNavButton = ({
+  direction,
+  onClick,
+  showArrows,
+}: {
+  direction: 'left' | 'right';
+  onClick: (e: React.MouseEvent) => void;
+  showArrows: boolean;
+}) => {
+  const Icon = direction === 'left' ? ChevronLeft : ChevronRight;
+  return (
+    <motion.button
+      onClick={onClick}
+      animate={{ opacity: showArrows ? 0.5 : 0, pointerEvents: showArrows ? 'auto' : 'none' }}
+      whileHover={{ opacity: showArrows ? 1 : 0, scale: showArrows ? 1.05 : 1 }}
+      whileTap={{ scale: showArrows ? 0.95 : 1 }}
+      transition={{ duration: 0.2 }}
+      className={`absolute ${direction === 'left' ? 'left-4 md:left-8' : 'right-4 md:right-8'} top-1/2 -translate-y-1/2 p-3 bg-white/5 border border-white/10 text-white rounded-full focus:outline-none z-50`}
+      aria-label={`${direction === 'left' ? 'Previous' : 'Next'} image`}
+    >
+      <Icon size={24} />
+    </motion.button>
+  );
+};
+
+// fallow-ignore-next-line complexity
 export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProject }: ViewProps & { activeProject: Project }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
@@ -608,7 +634,8 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
           </div>
 
           {/* Left Navigation Arrow */}
-          <motion.button
+          <ExpandedNavButton
+            direction="left"
             onClick={(e) => {
               e.stopPropagation();
               setExpandedIndex((prev) => {
@@ -616,18 +643,12 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                 return (prev - 1 + zoomableImages.length) % zoomableImages.length;
               });
             }}
-            animate={{ opacity: showArrows ? 0.5 : 0, pointerEvents: showArrows ? 'auto' : 'none' }}
-            whileHover={{ opacity: showArrows ? 1 : 0, scale: showArrows ? 1.05 : 1 }}
-            whileTap={{ scale: showArrows ? 0.95 : 1 }}
-            transition={{ duration: 0.2 }}
-            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-3 bg-white/5 border border-white/10 text-white rounded-full focus:outline-none z-50"
-            aria-label="Previous image"
-          >
-            <ChevronLeft size={24} />
-          </motion.button>
+            showArrows={showArrows}
+          />
 
           {/* Right Navigation Arrow */}
-          <motion.button
+          <ExpandedNavButton
+            direction="right"
             onClick={(e) => {
               e.stopPropagation();
               setExpandedIndex((prev) => {
@@ -635,15 +656,8 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                 return (prev + 1) % zoomableImages.length;
               });
             }}
-            animate={{ opacity: showArrows ? 0.5 : 0, pointerEvents: showArrows ? 'auto' : 'none' }}
-            whileHover={{ opacity: showArrows ? 1 : 0, scale: showArrows ? 1.05 : 1 }}
-            whileTap={{ scale: showArrows ? 0.95 : 1 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-3 bg-white/5 border border-white/10 text-white rounded-full focus:outline-none z-50"
-            aria-label="Next image"
-          >
-            <ChevronRight size={24} />
-          </motion.button>
+            showArrows={showArrows}
+          />
           
           <div className="relative max-w-5xl max-h-[80vh] flex items-center justify-center limit-click" onClick={(e) => e.stopPropagation()}>
             <motion.div
