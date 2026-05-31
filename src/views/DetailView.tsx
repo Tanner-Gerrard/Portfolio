@@ -188,7 +188,7 @@ const ProcessVideoPlayer = ({ videoUrl, imageUrl, title }: { videoUrl: string; i
             title={title}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            className="w-full h-full select-none pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[237.04%] h-full max-w-none sm:w-full sm:h-full sm:left-0 sm:top-0 sm:translate-x-0 sm:translate-y-0 select-none pointer-events-none"
             style={{ border: 'none' }}
           />
           <div className="absolute inset-0 bg-transparent z-10" />
@@ -534,7 +534,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                 className={`space-y-6 ${item.span || ''}`}
               >
                 <div 
-                  className="aspect-[16/9] bg-charcoal overflow-hidden group cursor-zoom-in relative"
+                  className="aspect-[3/4] sm:aspect-[16/9] bg-charcoal overflow-hidden group cursor-zoom-in relative"
                   onClick={() => setExpandedIndex(3 + idx)}
                 >
                   {item.video ? (
