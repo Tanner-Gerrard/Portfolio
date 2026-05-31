@@ -3,6 +3,7 @@ export interface Project {
   title: string;
   subtitle: string;
   year: string;
+  category?: string;
   image: string;
   objectPosition?: string;
   detailImages?: [string, string] | string[];
@@ -11,12 +12,17 @@ export interface Project {
     movement: string;
     weight: string;
   };
+  technicalOverview?: string;
+  keyFeatures?: string[];
+  designQuote?: string;
+  designNarrative?: string[];
   process?: {
     id: string;
     phase: string;
     title: string;
     description: string;
     image: string;
+    video?: string;
     span?: string;
   }[];
 }

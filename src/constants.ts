@@ -15,6 +15,7 @@ export const PROJECTS: Project[] = [
     title: 'ALPTOUR PACK',
     subtitle: 'Approach heavy. summit light',
     year: '2026',
+    category: 'LOAD ARCHITECTURE',
     image: img01hero,
     detailImages: [
       '/images/process/detail/01detail-01.avif',
@@ -70,6 +71,7 @@ export const PROJECTS: Project[] = [
     title: 'VENTOUR JACKET',
     subtitle: 'Mapped protection. zoned breathability',
     year: '2026',
+    category: 'CLIMATE SYSTEMS',
     image: img02hero,
     specs: {
       material: '(Un)calendared 6.6 Nylon',
@@ -82,6 +84,7 @@ export const PROJECTS: Project[] = [
     title: 'STRIDETOUR PANT',
     subtitle: 'High-output touring. mapped articulation',
     year: '2025',
+    category: 'KINETIC SYSTEMS',
     image: img03hero,
     specs: {
       material: 'Mechanical Stretch 6.6 Nylon',
@@ -91,14 +94,66 @@ export const PROJECTS: Project[] = [
   },
   {
     id: '04',
-    title: 'CRACK GLOVE',
-    subtitle: 'Utra-durable leather. sensitive for tight jams',
+    title: 'CORIUM GLOVE',
+    subtitle: 'A durable second skin for your most demanding alpine ascents',
     year: '2024',
+    category: 'DERMAL INTERFACE',
     image: img04hero,
+    detailImages: [
+      '/images/process/detail/04detail-01.avif',
+      '/images/process/detail/04detail-02.avif'
+    ],
     specs: {
       material: 'Leather & UHMWPE',
       movement: 'High Output',
       weight: '34g',
     },
+    technicalOverview: 'Engineered specifically for thin hands. Constructed entirely from a specialized 0.8mm technical leather with a tightly woven collagen fiber structure, the glove delivers exceptional abrasion resistance and up to ten times the tensile strength of standard leather. It is stitched with UHMWPE thread and features a clean, recessed closure that resists peeling. By eliminating thick rubber overlays, this highly durable profile preserves critical tactile feedback and breathability while still providing protection from sharp granite crystals.',
+    keyFeatures: [
+      "0.8mm Technical Leather: High-density collagen fibers deliver 10x the tensile strength of standard leather, maximizing abrasion resistance, and nearly eliminating finger tear out.",
+      "Tactile Sensitivity: Pure leather construction eliminates bulky rubber overlays for a direct connection to the rock.",
+      "UHMWPE Stitching: Ultra-high-tenacity thread resists abrasion—unseen in crack gloves currently on the market.",
+      "Recessed Closure: Flush design prevents the velcro wrist strap from peeling during deep hand jams.",
+      "Molded Fasteners: Molded hook and velour loop minimizes bulk around the wrist.",
+      "Continuous Airflow: Rubber-free design ensures continuous airflow, so the back of your hand stays dry in the hardest of cruxes.",
+      "Anatomical Fit: Precision-patterned, natural leather actively molds to the hand over time, with inherent elasticity, so the fit won't bag out."
+    ],
+    designQuote: '"In technical alpinism, sensitivity and durability are paramount. By eliminating standard rubber overlays, the interface protects the hand without severing its connection to the rock."',
+    designNarrative: [
+      "Modern hand protection in crack climbing typically relies on bonding heavy natural rubber pads to fabric backings. While rubber provides initial friction, it wears rapidly, delaminates under extreme torque, blocks airflow, and adds substantial volume that dulls critical tactile feedback.",
+      "The Corium Glove prioritizes material science over sheer mass. Utilizing a thin, specialized 0.8mm leather, it significantly outperforms traditional rubber constructions in long-term abrasion resistance. Fortified with high-strength UHMWPE stitching and a snag-free recessed wrist closure, the design functions as a highly durable, breathable second skin for the most demanding alpine environments."
+    ],
+    process: [
+      {
+        id: 'cp1',
+        phase: 'PHASE 01 // TEXTURE',
+        title: 'Material Stress Analysis',
+        description: 'Analyzing the 0.8mm technical leather under high tensile strain. We select a tightly structured collagen matrix to match the durability of traditional thick rubber without the loss of sensitivity.',
+        image: '/images/process/detail/04detail-01.avif',
+      },
+      {
+        id: 'cp2',
+        phase: 'PHASE 02 // SECURING SYSTEM',
+        title: 'Flush Wrist Closure',
+        description: 'Developing a recessed closure channel that prevents hook-and-loop fasteners from catching and peeling under extreme shear forces during hand-cracks.',
+        image: '/images/process/detail/04detail-02.avif',
+      },
+      {
+        id: 'cp3',
+        phase: 'PHASE 03 // GEOMETRY',
+        title: 'Precision-patterned Fit',
+        description: 'Generating the 2D anatomical shapes. Laser-cut patterns ensure exact alignment with flex zones, allowing the natural leather to shape itself perfectly to the climber\'s hand over time.',
+        image: '/images/process/process_2.avif',
+      },
+      {
+        id: 'cp4',
+        phase: 'PHASE 04 // PROTO ASSEMBLY',
+        title: 'Anatomical Glove Interface',
+        description: 'Real-time wear-testing of the active-fit assembly. Demonstrating the snug wrapping technique, perfect anatomical fit, dynamic finger articulation, and absolute tactile sensitivity.',
+        image: img04hero,
+        video: 'https://youtu.be/FKb5Zg6Q7TI&CONTROLS=0',
+        span: 'lg:col-span-2'
+      }
+    ]
   },
 ];
