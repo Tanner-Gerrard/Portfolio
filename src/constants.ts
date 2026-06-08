@@ -5,7 +5,7 @@ const img02hero = '/images/projects/02hero.jpg';
 const img03hero = '/images/projects/03hero.avif';
 const img04hero = '/images/projects/04hero.avif';
 export const imgConnect = '/images/site/connect.avif';
-const imgHero = '/images/projects/hero.jpg';
+const imgHero = '/images/projects/hero.avif';
 
 export const BASE_IMAGE = imgHero;
 
@@ -26,6 +26,11 @@ export const PROJECTS: Project[] = [
       movement: 'Sustained',
       weight: '572g',
     },
+    designQuote: '"The heaviest part of the climb is the approach, so why carry the same pack for both?"',
+    designNarrative: [
+      "Traditional alpine packs force a compromise: a larger, heavy-framed carrier to haul gear to basecamp, or a minimal, frameless assault pack that lacks stability and load distribution during technical approach hikes. Carrying both is a luxury that adds dead weight.",
+      "The Alptour Pack resolves this binary via an adaptive volume architecture. Constructed from ultra-lightweight Ultra 200X woven composites, it functions as a highly supported 45L load hauler during the approach. Upon reaching high camp, a modular roll-top integration and internal tensioning harnesses collapse the pack into a stable, form-fitting 25L summit pack that sits centered against the thoracic spine, fully preserving core rotational mobility."
+    ],
     process: [
       {
         id: 'p1',
@@ -78,6 +83,11 @@ export const PROJECTS: Project[] = [
       movement: 'Low Intensity',
       weight: '350g',
     },
+    designQuote: '"We don\'t solve for comfort; we solve for survival in movement."',
+    designNarrative: [
+      "Standard outer shells assume a static external environment, resulting in a continuous loop of overheating during high-exertion ascents and rapid cooling when stationary. Traditional pit-zips are cumbersome, adding unnecessary weight and bulk.",
+      "The Ventour Jacket introduces a dynamic micro-climate system. By pairing uncalendared 6.6 double-weave nylon at high-heat zones with a highly protective calendared ripstop over high-exposure areas, the jacket facilitates continuous passive vapor transition. Integrated laser-cut ventilation arrays under the arms and along the upper spine act as natural exhaust vents, ensuring that the garment stays on throughout the entire climb without requiring manual thermal management."
+    ],
   },
   {
     id: '03',
@@ -91,6 +101,11 @@ export const PROJECTS: Project[] = [
       movement: 'High Output',
       weight: '347g',
     },
+    designQuote: '"True articulation is not about loose fabric; it is about the exact geometry of muscle shear."',
+    designNarrative: [
+      "Lower-body gear for technical touring must withstand extreme abrasion from rock, ice, and ski edges while offering unhindered dynamic movement. Traditional solutions rely on baggy cuts that flap in high winds, or heavy elastane blends that absorb moisture and lose mechanical recovery over time.",
+      "The Stridetour Pant leverages procedural patterning to match the exact mechanics of lower-body movement. Constructed from durable, custom-woven mechanical stretch 6.6 nylon, the pants integrate three-dimensional knee articulation and a seamless diamond gusset. Every seam is rotated away from high-friction contact points, delivering absolute freedom during steep kick-turns and technical climbing while maintaining a streamlined, wind-cheating profile."
+    ],
   },
   {
     id: '04',
@@ -118,11 +133,11 @@ export const PROJECTS: Project[] = [
       "Continuous Airflow: Rubber-free design ensures continuous airflow, so the back of your hand stays dry in the hardest of cruxes.",
       "Anatomical Fit: Precision-patterned, natural leather actively molds to the hand over time, with inherent elasticity, so the fit won't bag out."
     ],
-    designQuote: '"In technical alpinism, sensitivity and durability are paramount. By eliminating standard rubber overlays, the interface protects the hand without severing its connection to the rock."',
+    designQuote: 'Replaces bulky rubber and disposable climbing tape with a high-performance second skin.',
     designNarrative: [
-      "Modern hand protection in crack climbing typically relies on bonding heavy natural rubber pads to fabric backings. While rubber provides initial friction, it wears rapidly, delaminates under extreme torque, blocks airflow, and adds substantial volume that dulls critical tactile feedback.",
-      "The Corium Glove prioritizes material science over sheer mass. Utilizing a thin, specialized 0.8mm leather, it significantly outperforms traditional rubber constructions in long-term abrasion resistance. Fortified with high-strength UHMWPE stitching and a snag-free recessed wrist closure, the design functions as a highly durable, breathable second skin for the most demanding alpine environments."
+      "The Corium Glove eliminates the trade-off between bulky, insensitive rubber pads and disposable athletic tape with an ultra-lightweight, high-performance second skin. Crafted from thin, specialized 0.8mm technical leather that conforms dynamically to the hand's natural anatomy and retains its elasticity without bagging out, the glove features load-bearing seams stitched with high-tenacity UHMWPE thread for ultimate abrasion resistance against sharp granite. A fully recessed wrist closure sits completely flush below the surface line, preventing the fasteners from snagging or peeling open accidentally during deep, high-torque hand-jams in flared cracks."
     ],
+    processGridAspect: 'aspect-[3/4]',
     process: [
       {
         id: 'cp1',
@@ -152,7 +167,8 @@ export const PROJECTS: Project[] = [
         description: 'Real-time wear-testing of the active-fit assembly. Demonstrating the snug wrapping technique, perfect anatomical fit, dynamic finger articulation, and absolute tactile sensitivity.',
         image: img04hero,
         video: 'https://youtu.be/FKb5Zg6Q7TI&CONTROLS=0',
-        span: 'lg:col-span-2'
+        span: 'lg:col-span-2',
+        aspect: 'aspect-[16/9]'
       }
     ]
   },

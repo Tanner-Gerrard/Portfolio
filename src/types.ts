@@ -16,6 +16,7 @@ export interface Project {
   keyFeatures?: string[];
   designQuote?: string;
   designNarrative?: string[];
+  processGridAspect?: string;
   process?: {
     id: string;
     phase: string;
@@ -24,6 +25,7 @@ export interface Project {
     image: string;
     video?: string;
     span?: string;
+    aspect?: string;
   }[];
 }
 
