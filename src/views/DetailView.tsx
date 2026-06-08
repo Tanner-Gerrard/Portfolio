@@ -65,6 +65,24 @@ const ExpandedVideoPlayer = ({
   const containerRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
+  const [isPortrait, setIsPortrait] = React.useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 1024 && window.innerHeight > window.innerWidth;
+  });
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => {
+      setIsPortrait(window.innerWidth < 1024 && window.innerHeight > window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
   React.useEffect(() => {
     if (!ytId) return;
 
@@ -115,7 +133,7 @@ const ExpandedVideoPlayer = ({
   }, [ytId]);
 
   if (ytId) {
-    const isPortraitAspect = aspect.includes('aspect-[3/4]') || aspect.includes('aspect-[4/5]');
+    const isPortraitAspect = aspect.includes('aspect-[3/4]') || aspect.includes('aspect-[4/5]') || isPortrait;
     const aspectClass = isPortraitAspect 
       ? 'w-[75vw] md:w-[85vw] max-w-[500px] aspect-[3/4]' 
       : 'w-[95vw] md:w-[90vw] lg:w-full max-w-[1240px] aspect-[16/9] max-h-[78vh] md:max-h-[84vh] lg:max-h-[88vh]';
@@ -125,7 +143,20 @@ const ExpandedVideoPlayer = ({
         onClick={(e) => e.stopPropagation()}
         className={`${aspectClass} border-0 shadow-2xl rounded-none overflow-hidden bg-black flex items-center justify-center relative`}
       >
-        <div ref={containerRef} className="absolute inset-0 w-full h-full" />
+        {isPortraitAspect && (
+          <style dangerouslySetInnerHTML={{__html: `
+            .youtube-portrait-crop iframe {
+              position: absolute !important;
+              top: 50% !important;
+              left: 50% !important;
+              transform: translate(-50%, -50%) !important;
+              height: 100% !important;
+              width: 237.04% !important;
+              max-width: none !important;
+            }
+          `}} />
+        )}
+        <div ref={containerRef} className={`absolute inset-0 w-full h-full ${isPortraitAspect ? 'youtube-portrait-crop' : ''}`} />
       </div>
     );
   }
@@ -205,7 +236,7 @@ const ProcessVideoPlayer = ({ videoUrl, imageUrl, title }: { videoUrl: string; i
             title={title}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            className="absolute inset-0 w-full h-full select-none pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-full w-[237.04%] max-w-none landscape:inset-0 landscape:w-full landscape:h-full landscape:translate-x-0 landscape:translate-y-0 lg:inset-0 lg:w-full lg:h-full lg:translate-x-0 lg:translate-y-0 lg:aspect-auto select-none pointer-events-none"
             style={{ border: 'none' }}
           />
           <div className="absolute inset-0 bg-transparent z-10" />
@@ -755,7 +786,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
 
       {activeProject.id === '04' ? (
         <section className="mt-16 px-8 md:px-10 lg:px-12 border-t border-outline/40 pt-12">
-          <div className="grid grid-cols-1 landscape:grid-cols-3 gap-12 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:landscape:grid-cols-3 gap-12 lg:gap-16 items-start">
             
             {/* Left 1/3: Header */}
             <div className="col-span-1">
@@ -766,8 +797,12 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
             </div>
 
             {/* Right 2/3: PNG Image */}
-            <div className="relative w-full flex justify-center items-center select-none col-span-1 landscape:col-span-2">
+            <div className="relative w-full flex justify-center items-center select-none col-span-1 lg:landscape:col-span-2">
               <picture className="w-full flex justify-center items-center">
+                <source 
+                  srcSet="/images/projects/Coriummobilecallout.png" 
+                  media="(max-width: 768px)" 
+                />
                 <source 
                   srcSet="/images/projects/outlinecoriumglovecalloutportraitinter.png" 
                   media="(max-width: 1024px), (orientation: portrait)" 
@@ -851,7 +886,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                     className="col-span-1 md:col-span-2 lg:col-span-3 border-t border-outline pt-10 mt-4 first:border-0 first:pt-0 first:mt-0"
                   >
                     <div 
-                      className="bg-charcoal overflow-hidden group cursor-zoom-in relative aspect-video w-full rounded-none border-0 shadow-lg"
+                      className="bg-charcoal overflow-hidden group cursor-zoom-in relative aspect-video portrait:aspect-[3/4] lg:aspect-video w-full rounded-none border-0 shadow-lg"
                       onClick={() => setExpandedIndex(3 + idx)}
                     >
                       <ProcessVideoPlayer 
