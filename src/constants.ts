@@ -1,11 +1,11 @@
 import { Project } from './types';
 
-const img01hero = '/images/projects/01hero.jpg';
-const img02hero = '/images/projects/02hero.jpg';
-const img03hero = '/images/projects/03hero.avif';
-const img04hero = '/images/projects/04hero.avif';
+const img01hero = '/images/projects/01-alptour-pack/hero.jpg';
+const img02hero = '/images/projects/02-ventour-jacket/hero.jpg';
+const img03hero = '/images/projects/03-stridetour-pant/hero.avif';
+const img04hero = '/images/projects/04-corium-glove/hero.avif';
 export const imgConnect = '/images/site/connect.avif';
-const imgHero = '/images/projects/hero.avif';
+const imgHero = '/images/site/hero.avif';
 
 export const BASE_IMAGE = imgHero;
 
@@ -18,8 +18,8 @@ export const PROJECTS: Project[] = [
     category: 'LOAD ARCHITECTURE',
     image: img01hero,
     detailImages: [
-      '/images/process/detail/01detail-01.avif',
-      '/images/process/detail/01detail-02.avif'
+      '/images/projects/01-alptour-pack/detail-1.avif',
+      '/images/projects/01-alptour-pack/detail-2.avif'
     ],
     specs: {
       material: 'Ultra 200X',
@@ -37,7 +37,7 @@ export const PROJECTS: Project[] = [
         phase: 'PHASE 01 // INTERFACE',
         title: 'Initial Thumbnail Sketches',
         description: 'Exploring the interface between human and equipment. Volume studies focus on high-output movement and anatomical load distribution.',
-        image: '/images/process/process_1.avif',
+        image: '/images/projects/01-alptour-pack/process-1.avif',
         span: 'lg:col-span-2'
       },
       {
@@ -45,28 +45,28 @@ export const PROJECTS: Project[] = [
         phase: 'PHASE 02 // GEOMETRY',
         title: 'Pattern and Form Exploration',
         description: 'Translating 2D geometry into 3D volume. Utilizing complex darts and bias-cut transitions to minimize seam exposure.',
-        image: '/images/process/process_2.avif',
+        image: '/images/projects/01-alptour-pack/process-2.avif',
       },
       {
         id: 'p3',
         phase: 'PHASE 03 // DIGITAL',
         title: 'V1 Digital Render',
         description: 'Verifying mechanical clearances and hardware integration in a digital workspace before physical cut and sew.',
-        image: '/images/process/process_3.avif',
+        image: '/images/projects/01-alptour-pack/process-3.avif',
       },
       {
         id: 'p4',
         phase: 'PHASE 04 // OPTIMIZATION',
         title: 'V2 Cut & Sew Patterns',
         description: 'Nesting and material optimization. Managing grain-line alignment for high-tenacity non-stretch composites.',
-        image: '/images/process/process_4.avif',
+        image: '/images/projects/01-alptour-pack/process-4.avif',
       },
       {
         id: 'p5',
         phase: 'PHASE 05 // PROTOTYPE',
         title: 'V3 Technical Prototype',
         description: 'Final technical assembly. Testing the symbiotic relationship between Ultra 200X and forged aluminum hardware.',
-        image: '/images/process/process_5.avif',
+        image: '/images/projects/01-alptour-pack/process-5.avif',
         span: 'lg:col-span-2'
       }
     ]
@@ -115,8 +115,8 @@ export const PROJECTS: Project[] = [
     category: 'DERMAL INTERFACE',
     image: img04hero,
     detailImages: [
-      '/images/process/detail/04detail-01.avif',
-      '/images/process/detail/04detail-02.avif'
+      '/images/projects/04-corium-glove/process42.avif',
+      '/images/projects/04-corium-glove/process43.avif'
     ],
     specs: {
       material: 'Leather & UHMWPE',
@@ -141,28 +141,49 @@ export const PROJECTS: Project[] = [
     process: [
       {
         id: 'cp1',
-        phase: 'PHASE 01 // TEXTURE',
-        title: 'Material Stress Analysis',
-        description: 'Analyzing the 0.8mm technical leather under high tensile strain. We select a tightly structured collagen matrix to match the durability of traditional thick rubber without the loss of sensitivity.',
-        image: '/images/process/detail/04detail-01.avif',
+        phase: 'PHASE 01 // PATTERNING',
+        title: '3D to 2D',
+        description: 'Determining optimal coverage while still maintaining full range of motion. Understanding how the 3D pattern translates to 2D materials with appropriately placed seams.',
+        image: '/images/projects/04-corium-glove/detail-1.avif',
       },
       {
         id: 'cp2',
-        phase: 'PHASE 02 // SECURING SYSTEM',
-        title: 'Flush Wrist Closure',
-        description: 'Developing a recessed closure channel that prevents hook-and-loop fasteners from catching and peeling under extreme shear forces during hand-cracks.',
-        image: '/images/process/detail/04detail-02.avif',
+        phase: 'PHASE 01 // PATTERNING',
+        title: 'Anatomical Reference Points',
+        description: 'Referencing anatomical points to place finger loop seams in the valleys to further durability. Experimenting with finger loop pattern angles for a narrow profile essential for quick "thin-hands" placements.',
+        image: '/images/projects/04-corium-glove/detail-2.avif',
       },
       {
         id: 'cp3',
-        phase: 'PHASE 03 // GEOMETRY',
-        title: 'Precision-patterned Fit',
-        description: 'Generating the 2D anatomical shapes. Laser-cut patterns ensure exact alignment with flex zones, allowing the natural leather to shape itself perfectly to the climber\'s hand over time.',
-        image: '/images/process/process_2.avif',
+        phase: 'PHASE 01 // PATTERNING',
+        title: 'Fit Adjustments',
+        description: 'Initial fit, determining ideal finger loop dimensions.',
+        image: '/images/projects/04-corium-glove/process47.avif',
+      },
+      {
+        id: 'cp5',
+        phase: 'PHASE 02 // CLOSURE ITERATION',
+        title: 'Elastic loop velcro testing',
+        description: 'First extensive testing with elastic loop velcro. Proved to not be strong enough elastic or durable enough. Recessed closure worked to prevent velcro from peeling.',
+        image: '/images/projects/04-corium-glove/process44.avif',
+      },
+      {
+        id: 'cp6',
+        phase: 'PHASE 02 // CLOSURE ITERATION',
+        title: 'Thickness offset and abrasion',
+        description: 'Moved to self material closure. Thread is protected from abrasion by small thickness of hook velcro under wrist flap.',
+        image: '/images/projects/04-corium-glove/process46.avif',
+      },
+      {
+        id: 'cp7',
+        phase: 'PHASE 02 // CLOSURE ITERATION',
+        title: 'Experimenting with recess variations',
+        description: 'Recess patch tension is better controlled when sewn underneath. Results in visually clean closure. CSM/Hypalon strap proved to be stiff, irritating at edges, and would build up too much perspiration in warm conditions; Material savings was not worth the cost.',
+        image: '/images/projects/04-corium-glove/process45.avif',
       },
       {
         id: 'cp4',
-        phase: 'PHASE 04 // PROTO ASSEMBLY',
+        phase: 'PHASE 05 // PROTO ASSEMBLY',
         title: 'Anatomical Glove Interface',
         description: 'Real-time wear-testing of the active-fit assembly. Demonstrating the snug wrapping technique, perfect anatomical fit, dynamic finger articulation, and absolute tactile sensitivity.',
         image: img04hero,

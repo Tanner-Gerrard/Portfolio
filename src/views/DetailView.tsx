@@ -435,7 +435,7 @@ const renderGloveSVG = () => (
 
 const StaticSchematic = ({ projectId }: { projectId: string }) => {
   const [imgFailed, setImgFailed] = useState(false);
-  const [imgSrc, setImgSrc] = useState('/images/projects/glove-wireframer.svg');
+  const [imgSrc, setImgSrc] = useState('/images/projects/04-corium-glove/glove-wireframer.svg');
 
   const renderSVG = () => {
     switch (projectId) {
@@ -458,7 +458,7 @@ const StaticSchematic = ({ projectId }: { projectId: string }) => {
           referrerPolicy="no-referrer"
           onError={() => {
             if (imgSrc.endsWith('.svg')) {
-              setImgSrc('/images/projects/glove-wireframer.png');
+              setImgSrc('/images/projects/04-corium-glove/glove-wireframer.png');
             } else {
               setImgFailed(true);
             }
@@ -689,24 +689,24 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
               className="grid grid-cols-2 gap-12"
             >
               <div 
-                className="aspect-square bg-surface-dim/30 overflow-hidden cursor-zoom-in group"
+                className={`${activeProject.id === '04' ? 'aspect-[3/4]' : 'aspect-square'} bg-surface-dim/30 overflow-hidden cursor-zoom-in group`}
                 onClick={() => setExpandedIndex(1)}
               >
                 <img 
                   src={activeProject.detailImages?.[0] || "https://images.unsplash.com/photo-1551632811-561730d164a1?auto=format&fit=crop&q=80&w=600"} 
                   alt="Detail 1" 
-                  className="w-full h-full object-cover opacity-100 transition-all duration-700 hover:scale-105" 
+                  className={`w-full h-full ${activeProject.id === '04' ? 'object-contain' : 'object-cover'} opacity-100 transition-all duration-700 hover:scale-105`} 
                   loading="lazy"
                 />
                </div>
               <div 
-                className="aspect-square bg-surface-dim/30 overflow-hidden cursor-zoom-in group"
+                className={`${activeProject.id === '04' ? 'aspect-[3/4]' : 'aspect-square'} bg-surface-dim/30 overflow-hidden cursor-zoom-in group`}
                 onClick={() => setExpandedIndex(2)}
               >
                  <img 
                   src={activeProject.detailImages?.[1] || "https://images.unsplash.com/photo-1614743224377-669be740e557?auto=format&fit=crop&q=80&w=600"} 
                   alt="Detail 2" 
-                  className="w-full h-full object-cover opacity-100 transition-all duration-700 hover:scale-105" 
+                  className={`w-full h-full ${activeProject.id === '04' ? 'object-contain' : 'object-cover'} opacity-100 transition-all duration-700 hover:scale-105`} 
                   loading="lazy"
                 />
               </div>
@@ -800,15 +800,15 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
             <div className="relative w-full flex justify-center items-center select-none col-span-1 lg:landscape:col-span-2">
               <picture className="w-full flex justify-center items-center">
                 <source 
-                  srcSet="/images/projects/Coriummobilecallout.png" 
+                  srcSet="/images/projects/04-corium-glove/mobile-callout.png" 
                   media="(max-width: 768px)" 
                 />
                 <source 
-                  srcSet="/images/projects/outlinecoriumglovecalloutportraitinter.png" 
+                  srcSet="/images/projects/04-corium-glove/callout-portrait.png" 
                   media="(max-width: 1024px), (orientation: portrait)" 
                 />
                 <img 
-                  src="/images/projects/outlinecoriumglovecallout.png" 
+                  src="/images/projects/04-corium-glove/callout-outline.png" 
                   alt="Corium Glove Wireframe Callout Schematic" 
                   className="w-full h-auto max-h-[85vh] object-contain rounded-md" 
                   referrerPolicy="no-referrer"
@@ -909,13 +909,13 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                   className="col-span-1 space-y-5"
                 >
                   <div 
-                    className={`${item.aspect || activeProject.processGridAspect || 'aspect-[4/3]'} bg-charcoal overflow-hidden group cursor-zoom-in relative rounded-none border-0 shadow-sm relative`}
+                    className={`${item.aspect || activeProject.processGridAspect || 'aspect-[4/3]'} bg-charcoal/20 overflow-hidden group cursor-zoom-in relative rounded-none border-0 shadow-sm relative`}
                     onClick={() => setExpandedIndex(3 + idx)}
                   >
                     <img 
                       src={item.image} 
                       alt={item.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                      className={`w-full h-full ${activeProject.id === '04' ? 'object-contain' : 'object-cover'} transition-transform duration-700 hover:scale-105`}
                       referrerPolicy="no-referrer"
                     />
                   </div>
@@ -975,32 +975,6 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
               <span className="text-xs font-mono tracking-widest uppercase">Close // Esc</span>
             </button>
           </div>
-
-          {/* Left Navigation Arrow */}
-          <ExpandedNavButton
-            direction="left"
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpandedIndex((prev) => {
-                if (prev === null) return null;
-                return (prev - 1 + zoomableImages.length) % zoomableImages.length;
-              });
-            }}
-            showArrows={showArrows}
-          />
-
-          {/* Right Navigation Arrow */}
-          <ExpandedNavButton
-            direction="right"
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpandedIndex((prev) => {
-                if (prev === null) return null;
-                return (prev + 1) % zoomableImages.length;
-              });
-            }}
-            showArrows={showArrows}
-          />
           
           <div className="h-full w-full flex items-center justify-center p-4">
             <div className="relative max-w-none w-[95vw] h-[90vh] flex items-center justify-center limit-click">
@@ -1011,7 +985,32 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 lg:gap-10 p-4 w-full h-full"
               >
-                <div className="flex-grow min-w-0 flex items-center justify-center w-full max-h-[78vh] md:max-h-[84vh] lg:max-h-[88vh]">
+                <div className="relative flex-grow min-w-0 flex items-center justify-center w-full max-h-[78vh] md:max-h-[84vh] lg:max-h-[88vh]">
+                  {/* Left Navigation Arrow */}
+                  <ExpandedNavButton
+                    direction="left"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedIndex((prev) => {
+                        if (prev === null) return null;
+                        return (prev - 1 + zoomableImages.length) % zoomableImages.length;
+                      });
+                    }}
+                    showArrows={showArrows}
+                  />
+
+                  {/* Right Navigation Arrow */}
+                  <ExpandedNavButton
+                    direction="right"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedIndex((prev) => {
+                        if (prev === null) return null;
+                        return (prev + 1) % zoomableImages.length;
+                      });
+                    }}
+                    showArrows={showArrows}
+                  />
                   {(() => {
                     if (!expandedImage) return null;
                     const ytId = getYoutubeId(expandedImage);
