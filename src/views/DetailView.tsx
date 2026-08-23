@@ -249,52 +249,8 @@ const ProcessVideoPlayer = ({
   title: string;
   aspectRatio?: 'portrait' | 'landscape' | 'auto';
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
-
   const ytId = getYoutubeId(videoUrl);
-
-  React.useEffect(() => {
-    if (!containerRef.current) return;
-    
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            io.disconnect();
-          }
-        });
-      },
-      {
-        rootMargin: '100px',
-      }
-    );
-    io.observe(containerRef.current);
-
-    return () => {
-      io.disconnect();
-    };
-  }, []);
-
-  if (!isVisible) {
-    return (
-      <div ref={containerRef} className="w-full h-full bg-charcoal relative">
-        {imageUrl ? (
-          <img 
-            src={imageUrl} 
-            alt={title} 
-            className="w-full h-full object-cover opacity-60"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="w-6 h-6 border-2 border-white/10 border-t-white/40 rounded-full animate-spin" />
-          </div>
-        )}
-      </div>
-    );
-  }
-
   const isPortrait = aspectRatio === 'portrait';
 
   return (
@@ -302,14 +258,14 @@ const ProcessVideoPlayer = ({
       {ytId ? (
         <div className="absolute inset-0 overflow-hidden bg-charcoal pointer-events-none">
           <iframe
-            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&vq=hd2160`}
+            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1`}
             title={title}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             className={
               isPortrait
                 ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-full w-[237.04%] max-w-none select-none pointer-events-none"
-                : "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full object-cover max-w-none select-none pointer-events-none"
+                : "absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
             }
             style={{ border: 'none' }}
           />
@@ -610,7 +566,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
     }
     if (index >= 4) {
       const currentMedia = zoomableImages[index];
-      const matchedItem = activeProject.process?.find(p => (p.video || p.image) === currentMedia);
+      const matchedItem = activeProject.process?.find(p => (p.youtubeUrl || p.video || p.image) === currentMedia);
       if (matchedItem) {
         return {
           phase: matchedItem.phase,
@@ -707,7 +663,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
   const zoomableImages: string[] = [...topGalleryImages];
   if (activeProject.process) {
     activeProject.process.forEach(item => {
-      const media = item.video || item.image;
+      const media = item.youtubeUrl || item.video || item.image;
       if (!zoomableImages.includes(media)) {
         zoomableImages.push(media);
       }
@@ -720,7 +676,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
     if (expandedIndex === 3 && isGlove) {
       return activeProject.detailImages?.[2] || '/images/projects/04-corium-glove/detail-1.avif';
     }
-    const matchedItem = activeProject.process?.find(p => (p.video || p.image) === currentMedia);
+    const matchedItem = activeProject.process?.find(p => (p.youtubeUrl || p.video || p.image) === currentMedia);
     if (matchedItem?.image) {
       return matchedItem.image;
     }
@@ -996,7 +952,8 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
           {/* Reverted Layout: Three-wide for images, and full-width for video elements */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 md:gap-x-12 gap-y-16 items-start">
             {activeProject.process.map((item, idx) => {
-              if (item.video) {
+              const videoSrc = item.youtubeUrl || item.video;
+              if (videoSrc) {
                 return (
                   <motion.div 
                     key={item.id}
@@ -1009,13 +966,13 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                     <div 
                       className="bg-charcoal overflow-hidden group cursor-zoom-in relative aspect-video portrait:aspect-[3/4] lg:aspect-video w-full rounded-none border-0 shadow-lg"
                       onClick={() => {
-                        const media = item.video || item.image;
+                        const media = item.youtubeUrl || item.video || item.image;
                         const mediaIdx = zoomableImages.indexOf(media);
                         setExpandedIndex(mediaIdx >= 0 ? mediaIdx : 0);
                       }}
                     >
                       <ProcessVideoPlayer 
-                        videoUrl={item.video} 
+                        videoUrl={videoSrc} 
                         imageUrl={item.image} 
                         title={item.title} 
                         aspectRatio="landscape"
@@ -1037,7 +994,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                   <div 
                     className={`${item.aspect || activeProject.processGridAspect || 'aspect-[4/3]'} bg-charcoal/20 overflow-hidden group cursor-zoom-in relative rounded-none border-0 shadow-sm relative`}
                     onClick={() => {
-                      const media = item.video || item.image;
+                      const media = item.youtubeUrl || item.video || item.image;
                       const mediaIdx = zoomableImages.indexOf(media);
                       setExpandedIndex(mediaIdx >= 0 ? mediaIdx : 0);
                     }}
@@ -1146,27 +1103,14 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                     const ytId = getYoutubeId(expandedImage);
                     const isDirectVideo = /(\.mp4|\.webm|\.mov)/i.test(expandedImage);
                     if (ytId || isDirectVideo) {
-                      // Determine if there is a 4K YouTube URL to use for expanded lightbox mode
-                      let modalVideoUrl = expandedImage;
-                      if (activeProject.youtubeUrl) {
-                        if (expandedIndex === 3 || expandedImage === activeProject.video) {
-                          modalVideoUrl = activeProject.youtubeUrl;
-                        } else {
-                          const matchedProcess = activeProject.process?.find(p => p.video === expandedImage || p.image === expandedImage);
-                          if (matchedProcess?.youtubeUrl) {
-                            modalVideoUrl = matchedProcess.youtubeUrl;
-                          }
-                        }
-                      }
-
-                      const matchedProcess = activeProject.process?.find(p => p.video === expandedImage || p.image === expandedImage);
-                      const computedAspect = matchedProcess?.aspect || 'aspect-[16/9]';
+                      const matchedProcess = activeProject.process?.find(p => (p.youtubeUrl || p.video || p.image) === expandedImage);
+                      const computedAspect = matchedProcess?.aspect || (isDirectVideo && expandedIndex === 3 ? 'aspect-[3/4]' : 'aspect-[16/9]');
 
                       return (
                         <ExpandedVideoPlayer 
-                          videoUrl={modalVideoUrl}
+                          videoUrl={expandedImage}
                           fallbackImage={fallbackImageForExpandedView}
-                          title="Process view"
+                          title="Video playback"
                           aspect={computedAspect}
                         />
                       );
