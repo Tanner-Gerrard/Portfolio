@@ -230,6 +230,9 @@ const ExpandedVideoPlayer = ({
     );
   }
 
+  const resolvedSrc = resolveMediaUrl(videoUrl);
+  const resolvedPoster = resolveMediaUrl(fallbackImage);
+
   return (
     <div 
       onClick={(e) => e.stopPropagation()}
@@ -237,8 +240,8 @@ const ExpandedVideoPlayer = ({
     >
       <video
         ref={videoRef}
-        src={videoUrl}
-        poster={fallbackImage}
+        src={resolvedSrc}
+        poster={resolvedPoster}
         autoPlay
         muted
         playsInline
@@ -246,28 +249,53 @@ const ExpandedVideoPlayer = ({
         loop
         preload="auto"
         className="max-w-full max-h-[78vh] md:max-h-[84vh] lg:max-h-[88vh] object-contain border-0 shadow-2xl rounded-none"
-      />
+      >
+        <source src={resolvedSrc} type="video/mp4" />
+      </video>
     </div>
   );
+};
+
+const resolveMediaUrl = (url?: string): string => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
+    return url;
+  }
+  const cleanUrl = url.startsWith('/') ? url.slice(1) : url;
+  const base = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL 
+    ? import.meta.env.BASE_URL 
+    : './';
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  return `${cleanBase}${cleanUrl}`;
 };
 
 const ProcessVideoPlayer = ({ 
   videoUrl, 
   imageUrl, 
+  fallbackYoutubeUrl,
   title, 
   aspectRatio = 'portrait' 
 }: { 
   videoUrl: string; 
   imageUrl?: string; 
+  fallbackYoutubeUrl?: string;
   title: string;
   aspectRatio?: 'portrait' | 'landscape' | 'auto';
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  const ytId = getYoutubeId(videoUrl);
+  const [loadFailed, setLoadFailed] = React.useState(false);
+  
+  const directYtId = getYoutubeId(videoUrl);
+  const fallbackYtId = fallbackYoutubeUrl ? getYoutubeId(fallbackYoutubeUrl) : null;
+  const activeYtId = directYtId || (loadFailed ? fallbackYtId : null);
+  
   const isPortrait = aspectRatio === 'portrait';
+  const resolvedVideoSrc = resolveMediaUrl(videoUrl);
+  const resolvedImageSrc = resolveMediaUrl(imageUrl);
 
   React.useEffect(() => {
+    if (activeYtId) return;
     const video = videoRef.current;
     if (!video) return;
 
@@ -276,28 +304,59 @@ const ProcessVideoPlayer = ({
     video.playsInline = true;
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
-    
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Fallback: retry play on user interaction if autoplay was blocked
-        const handleInteraction = () => {
-          video.play().catch(() => {});
-          window.removeEventListener('touchstart', handleInteraction);
-          window.removeEventListener('click', handleInteraction);
-        };
-        window.addEventListener('touchstart', handleInteraction, { once: true });
-        window.addEventListener('click', handleInteraction, { once: true });
-      });
+    video.setAttribute('muted', '');
+
+    const tryPlay = () => {
+      if (!video) return;
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          // If browser policy blocked un-interacted autoplay, retry on first touch/click
+          const handleInteraction = () => {
+            if (video) {
+              video.muted = true;
+              video.play().catch(() => {
+                if (fallbackYtId) setLoadFailed(true);
+              });
+            }
+            window.removeEventListener('touchstart', handleInteraction);
+            window.removeEventListener('click', handleInteraction);
+            window.removeEventListener('scroll', handleInteraction);
+          };
+          window.addEventListener('touchstart', handleInteraction, { once: true, passive: true });
+          window.addEventListener('click', handleInteraction, { once: true });
+          window.addEventListener('scroll', handleInteraction, { once: true, passive: true });
+        });
+      }
+    };
+
+    // Autoplay immediately
+    tryPlay();
+
+    // IntersectionObserver to start/resume when visible
+    let observer: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== 'undefined' && containerRef.current) {
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            tryPlay();
+          }
+        });
+      }, { threshold: 0.15 });
+      observer.observe(containerRef.current);
     }
-  }, [videoUrl]);
+
+    return () => {
+      if (observer) observer.disconnect();
+    };
+  }, [resolvedVideoSrc, activeYtId, fallbackYtId]);
 
   return (
     <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-charcoal select-none">
-      {ytId ? (
+      {activeYtId ? (
         <div className="absolute inset-0 overflow-hidden bg-charcoal pointer-events-none">
           <iframe
-            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1`}
+            src={`https://www.youtube-nocookie.com/embed/${activeYtId}?autoplay=1&mute=1&loop=1&playlist=${activeYtId}&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1`}
             title={title}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -313,8 +372,8 @@ const ProcessVideoPlayer = ({
       ) : (
         <video 
           ref={videoRef}
-          src={videoUrl} 
-          poster={imageUrl}
+          src={resolvedVideoSrc} 
+          poster={resolvedImageSrc}
           autoPlay 
           loop 
           muted 
@@ -326,7 +385,19 @@ const ProcessVideoPlayer = ({
             v.muted = true;
             v.play().catch(() => {});
           }}
-        />
+          onCanPlay={(e) => {
+            const v = e.currentTarget;
+            v.muted = true;
+            v.play().catch(() => {});
+          }}
+          onError={() => {
+            if (fallbackYtId) {
+              setLoadFailed(true);
+            }
+          }}
+        >
+          <source src={resolvedVideoSrc} type="video/mp4" />
+        </video>
       )}
     </div>
   );
@@ -813,6 +884,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                         <ProcessVideoPlayer 
                           videoUrl={mediaSrc} 
                           imageUrl={fallbackImg} 
+                          fallbackYoutubeUrl={activeProject.youtubeUrl}
                           title={`${activeProject.title} Wear Test Video`} 
                           aspectRatio="portrait"
                         />
@@ -1025,6 +1097,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                       <ProcessVideoPlayer 
                         videoUrl={videoSrc} 
                         imageUrl={item.image} 
+                        fallbackYoutubeUrl={item.youtubeUrl || activeProject.youtubeUrl}
                         title={item.title} 
                         aspectRatio="landscape"
                       />
