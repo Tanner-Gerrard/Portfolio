@@ -250,8 +250,17 @@ const ProcessVideoPlayer = ({
   aspectRatio?: 'portrait' | 'landscape' | 'auto';
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
   const ytId = getYoutubeId(videoUrl);
   const isPortrait = aspectRatio === 'portrait';
+
+  React.useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.defaultMuted = true;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [videoUrl]);
 
   return (
     <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-charcoal select-none">
@@ -273,6 +282,7 @@ const ProcessVideoPlayer = ({
         </div>
       ) : (
         <video 
+          ref={videoRef}
           src={videoUrl} 
           poster={imageUrl}
           autoPlay 
