@@ -58,7 +58,7 @@ export const Header = ({ view, navTo, isMenuOpen, setIsMenuOpen, className = "" 
       <div className="flex items-center justify-between px-8 lg:px-12 py-8">
         <button 
           onClick={() => navTo('index')}
-          className={`text-xl font-bold tracking-tighter uppercase text-left transition-colors whitespace-nowrap ${view !== 'index' ? 'hover:text-dynasty' : ''}`}
+          className={`text-xl font-semibold tracking-tight uppercase text-left transition-colors whitespace-nowrap ${view !== 'index' ? 'hover:text-dynasty' : ''}`}
         >
           Tanner Gerrard
         </button>

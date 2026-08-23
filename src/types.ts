@@ -5,6 +5,8 @@ export interface Project {
   year: string;
   category?: string;
   image: string;
+  video?: string;
+  youtubeUrl?: string;
   objectPosition?: string;
   detailImages?: [string, string] | string[];
   specs: {
@@ -24,6 +26,7 @@ export interface Project {
     description: string;
     image: string;
     video?: string;
+    youtubeUrl?: string;
     span?: string;
     aspect?: string;
   }[];

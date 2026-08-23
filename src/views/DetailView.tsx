@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Instagram, Mail, ArrowUpRight } from 'lucide-react';
 import { Project, ViewProps } from '../types';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
@@ -107,15 +107,71 @@ const ExpandedVideoPlayer = ({
           rel: 0,
           modestbranding: 1,
           playsinline: 1,
+          enablejsapi: 1,
+          origin: typeof window !== 'undefined' ? window.location.origin : undefined,
           vq: 'hd2160',
         },
         events: {
           onReady: (event: any) => {
             event.target.unMute();
             event.target.setVolume(100);
+            try {
+              if (typeof event.target.setPlaybackQuality === 'function') {
+                event.target.setPlaybackQuality('hd2160');
+              }
+              if (typeof event.target.setSuggestedQuality === 'function') {
+                event.target.setSuggestedQuality('hd2160');
+              }
+            } catch (e) {}
             event.target.playVideo();
+
+            // Explicitly enforce 4K resolution once playback stream establishes
+            setTimeout(() => {
+              try {
+                if (typeof event.target.setPlaybackQuality === 'function') {
+                  event.target.setPlaybackQuality('hd2160');
+                }
+              } catch (e) {}
+            }, 500);
+            setTimeout(() => {
+              try {
+                const available = event.target.getAvailableQualityLevels?.();
+                if (available && available.length > 0) {
+                  if (available.includes('hd2160')) {
+                    event.target.setPlaybackQuality('hd2160');
+                  } else if (available.includes('highres')) {
+                    event.target.setPlaybackQuality('highres');
+                  }
+                }
+              } catch (e) {}
+            }, 1500);
+          },
+          onPlaybackQualityChange: (event: any) => {
+            try {
+              const currentQuality = event.data;
+              if (currentQuality !== 'hd2160' && currentQuality !== 'highres') {
+                const available = event.target.getAvailableQualityLevels?.();
+                if (available && available.includes('hd2160')) {
+                  event.target.setPlaybackQuality('hd2160');
+                }
+              }
+            } catch (e) {}
           },
           onStateChange: (event: any) => {
+            if (event.data === 1 || event.data === 3) { // PLAYING or BUFFERING
+              try {
+                const available = event.target.getAvailableQualityLevels?.();
+                if (available && available.length > 0) {
+                  if (available.includes('hd2160')) {
+                    event.target.setPlaybackQuality('hd2160');
+                  } else if (available.includes('highres')) {
+                    event.target.setPlaybackQuality('highres');
+                  } else if (available.includes('hd1440')) {
+                    event.target.setPlaybackQuality('hd1440');
+                  }
+                }
+              } catch (err) {}
+            }
             if (event.data === 0) { // ENDED
               event.target.playVideo();
             }
@@ -133,17 +189,17 @@ const ExpandedVideoPlayer = ({
   }, [ytId]);
 
   if (ytId) {
-    const isPortraitAspect = aspect.includes('aspect-[3/4]') || aspect.includes('aspect-[4/5]') || isPortrait;
-    const aspectClass = isPortraitAspect 
+    const isPortraitForced = aspect.includes('aspect-[3/4]') || aspect.includes('aspect-[4/5]');
+    const aspectClass = isPortraitForced 
       ? 'w-[75vw] md:w-[85vw] max-w-[500px] aspect-[3/4]' 
-      : 'w-[95vw] md:w-[90vw] lg:w-full max-w-[1240px] aspect-[16/9] max-h-[78vh] md:max-h-[84vh] lg:max-h-[88vh]';
+      : 'w-[96vw] md:w-[92vw] lg:w-full max-w-[1280px] aspect-[16/9] max-h-[82vh] md:max-h-[86vh]';
 
     return (
       <div 
         onClick={(e) => e.stopPropagation()}
-        className={`${aspectClass} border-0 shadow-2xl rounded-none overflow-hidden bg-black flex items-center justify-center relative`}
+        className={`${aspectClass} border-0 shadow-2xl rounded-none overflow-hidden bg-black flex items-center justify-center relative group`}
       >
-        {isPortraitAspect && (
+        {isPortraitForced && (
           <style dangerouslySetInnerHTML={{__html: `
             .youtube-portrait-crop iframe {
               position: absolute !important;
@@ -156,7 +212,7 @@ const ExpandedVideoPlayer = ({
             }
           `}} />
         )}
-        <div ref={containerRef} className={`absolute inset-0 w-full h-full ${isPortraitAspect ? 'youtube-portrait-crop' : ''}`} />
+        <div ref={containerRef} className={`absolute inset-0 w-full h-full ${isPortraitForced ? 'youtube-portrait-crop' : ''}`} />
       </div>
     );
   }
@@ -171,16 +227,28 @@ const ExpandedVideoPlayer = ({
         src={videoUrl}
         poster={fallbackImage}
         autoPlay
+        muted
         playsInline
         controls
         loop
+        preload="auto"
         className="max-w-full max-h-[78vh] md:max-h-[84vh] lg:max-h-[88vh] object-contain border-0 shadow-2xl rounded-none"
       />
     </div>
   );
 };
 
-const ProcessVideoPlayer = ({ videoUrl, imageUrl, title }: { videoUrl: string; imageUrl?: string; title: string }) => {
+const ProcessVideoPlayer = ({ 
+  videoUrl, 
+  imageUrl, 
+  title, 
+  aspectRatio = 'portrait' 
+}: { 
+  videoUrl: string; 
+  imageUrl?: string; 
+  title: string;
+  aspectRatio?: 'portrait' | 'landscape' | 'auto';
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -227,16 +295,22 @@ const ProcessVideoPlayer = ({ videoUrl, imageUrl, title }: { videoUrl: string; i
     );
   }
 
+  const isPortrait = aspectRatio === 'portrait';
+
   return (
-    <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-charcoal">
+    <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-charcoal select-none">
       {ytId ? (
-        <div className="absolute inset-0 overflow-hidden bg-charcoal">
+        <div className="absolute inset-0 overflow-hidden bg-charcoal pointer-events-none">
           <iframe
-            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&vq=hd2160`}
+            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&vq=hd2160`}
             title={title}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-full w-[237.04%] max-w-none landscape:inset-0 landscape:w-full landscape:h-full landscape:translate-x-0 landscape:translate-y-0 lg:inset-0 lg:w-full lg:h-full lg:translate-x-0 lg:translate-y-0 lg:aspect-auto select-none pointer-events-none"
+            className={
+              isPortrait
+                ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-full w-[237.04%] max-w-none select-none pointer-events-none"
+                : "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full object-cover max-w-none select-none pointer-events-none"
+            }
             style={{ border: 'none' }}
           />
           <div className="absolute inset-0 bg-transparent z-10" />
@@ -433,22 +507,22 @@ const renderGloveSVG = () => (
   </svg>
 );
 
-const StaticSchematic = ({ projectId }: { projectId: string }) => {
+const StaticSchematic = ({ projectId, isGlove }: { projectId: string; isGlove?: boolean }) => {
   const [imgFailed, setImgFailed] = useState(false);
   const [imgSrc, setImgSrc] = useState('/images/projects/04-corium-glove/glove-wireframer.svg');
 
   const renderSVG = () => {
+    if (isGlove || projectId === '01') return renderGloveSVG();
     switch (projectId) {
-      case '01': return renderPackSVG();
-      case '02': return renderJacketSVG();
-      case '03': return renderPantSVG();
-      case '04':
+      case '02': return renderPackSVG();
+      case '03': return renderJacketSVG();
+      case '04': return renderPantSVG();
       default:
         return renderGloveSVG();
     }
   };
 
-  if (projectId === '04' && !imgFailed) {
+  if ((isGlove || projectId === '01') && !imgFailed) {
     return (
       <div className="w-full max-w-full flex items-center justify-center opacity-95 select-none py-4">
         <img 
@@ -487,6 +561,9 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
   const touchStartX = React.useRef<number | null>(null);
   const touchStartY = React.useRef<number | null>(null);
 
+  const isGlove = activeProject.title.toUpperCase().includes('CORIUM') || activeProject.id === '01';
+  const isPack = activeProject.title.toUpperCase().includes('ALPTOUR') || activeProject.id === '02';
+
   const getMediaCaption = (index: number) => {
     if (index === 0) {
       return {
@@ -499,7 +576,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
       return {
         phase: `DETAIL // 01`,
         title: `ANATOMICAL REFINEMENT`,
-        description: activeProject.id === '04'
+        description: isGlove
           ? `Detailed close-up study of the 0.8mm technical leather wrapping technique, highlighting the monolithic material usage and pure leather texture.`
           : `Macro analysis of secondary interfaces, seam construction integrity, and face fabrics interaction.`,
       };
@@ -508,18 +585,37 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
       return {
         phase: `DETAIL // 02`,
         title: `INTERFACE EXECUTION`,
-        description: activeProject.id === '04'
+        description: isGlove
           ? `Detailed inspection of the low-profile recessed wrist closure and high-strength UHMWPE stitching paths.`
           : `High-resolution detail of mechanical zippers, closure channels, and functional trim integrations.`,
       };
     }
-    if (activeProject.process && index >= 3) {
-      const item = activeProject.process[index - 3];
-      if (item) {
+    if (index === 3) {
+      const topMedia = topGalleryImages[3];
+      const isVideoMedia = !!(getYoutubeId(topMedia) || /(\.mp4|\.webm|\.mov)/i.test(topMedia));
+      if (isVideoMedia) {
         return {
-          phase: item.phase,
-          title: item.title,
-          description: item.description,
+          phase: `PHASE 05 // PROTO ASSEMBLY`,
+          title: `ANATOMICAL GLOVE INTERFACE`,
+          description: `Real-time wear-testing of the active-fit assembly. Demonstrating the snug wrapping technique, perfect anatomical fit, dynamic finger articulation, and absolute tactile sensitivity.`,
+        };
+      }
+      return {
+        phase: `DETAIL // 03`,
+        title: `MATERIAL & FUNCTIONAL TESTING`,
+        description: isGlove
+          ? `Anatomical pattern testing and seam stress analysis under active strain.`
+          : `Structural analysis of load-bearing zones and composite material behavior.`,
+      };
+    }
+    if (index >= 4) {
+      const currentMedia = zoomableImages[index];
+      const matchedItem = activeProject.process?.find(p => (p.video || p.image) === currentMedia);
+      if (matchedItem) {
+        return {
+          phase: matchedItem.phase,
+          title: matchedItem.title,
+          description: matchedItem.description,
         };
       }
     }
@@ -599,24 +695,36 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
     touchStartY.current = null;
   };
 
-  // Formulate the ordered list of expand-enabled zoom images matching the reading layout order (reading a book)
+  // Formulate the ordered list of expand-enabled zoom images matching the reading layout order
   const heroImage = activeProject.image;
   const detail1 = activeProject.detailImages?.[0] || "https://images.unsplash.com/photo-1551632811-561730d164a1?auto=format&fit=crop&q=80&w=600";
   const detail2 = activeProject.detailImages?.[1] || "https://images.unsplash.com/photo-1614743224377-669be740e557?auto=format&fit=crop&q=80&w=600";
+  const projectVideo = activeProject.video || activeProject.process?.find(p => p.video)?.video;
+  const detail3 = projectVideo || activeProject.detailImages?.[2] || activeProject.process?.[0]?.image || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600";
   
-  const zoomableImages: string[] = [heroImage, detail1, detail2];
+  const topGalleryImages = [heroImage, detail1, detail2, detail3];
+
+  const zoomableImages: string[] = [...topGalleryImages];
   if (activeProject.process) {
     activeProject.process.forEach(item => {
-      zoomableImages.push(item.video || item.image);
+      const media = item.video || item.image;
+      if (!zoomableImages.includes(media)) {
+        zoomableImages.push(media);
+      }
     });
   }
 
   const getFallbackImage = () => {
     if (expandedIndex === null) return '';
-    if (expandedIndex >= 3 && activeProject.process && activeProject.process[expandedIndex - 3]) {
-      return activeProject.process[expandedIndex - 3].image;
+    const currentMedia = zoomableImages[expandedIndex];
+    if (expandedIndex === 3 && isGlove) {
+      return activeProject.detailImages?.[2] || '/images/projects/04-corium-glove/detail-1.avif';
     }
-    return zoomableImages[expandedIndex] || '';
+    const matchedItem = activeProject.process?.find(p => (p.video || p.image) === currentMedia);
+    if (matchedItem?.image) {
+      return matchedItem.image;
+    }
+    return currentMedia || '';
   };
   const fallbackImageForExpandedView = getFallbackImage();
 
@@ -661,137 +769,150 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
 
     <main className="max-w-[1600px] mx-auto pt-6 pb-32">
       <section className="px-8 md:px-10 lg:px-12">
-        <div className="lg:hidden mb-12">
-          <p className="text-technical-label text-dynasty mb-4">2026 // SELECTED WORKS</p>
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tighter uppercase leading-[0.85] mb-6">
+        <div className="lg:hidden mb-8 pb-6 border-b border-outline">
+          <div className="inline-flex items-center border border-outline px-2 py-0.5 text-[10px] font-mono tracking-wider text-dynasty mb-3 uppercase rounded-sm bg-surface-dim/20">
+            2026 // SELECTED WORKS
+          </div>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight uppercase leading-tight text-charcoal">
             {activeProject.title}
           </h1>
-          <p className="text-xl md:text-2xl text-gray-500 uppercase tracking-tight leading-snug">
+          <p className="text-sm md:text-base text-gray-500 uppercase tracking-wide leading-relaxed mt-2">
             {activeProject.subtitle}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-          <div className="space-y-12">
-            <div className="aspect-[4/5] bg-charcoal transition-all duration-700 overflow-hidden">
-              <img 
-                src={activeProject.image} 
-                alt={activeProject.title} 
-                className="w-full h-full object-cover" 
-                style={{ objectPosition: activeProject.objectPosition || 'center' }}
-              />
-            </div>
-            
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-stretch">
+          <div>
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="grid grid-cols-2 gap-12"
+              transition={{ duration: 0.5 }}
+              className="grid grid-cols-2 gap-3 sm:gap-4"
             >
-              <div 
-                className={`${activeProject.id === '04' ? 'aspect-[3/4]' : 'aspect-square'} bg-surface-dim/30 overflow-hidden cursor-zoom-in group`}
-                onClick={() => setExpandedIndex(1)}
-              >
-                <img 
-                  src={activeProject.detailImages?.[0] || "https://images.unsplash.com/photo-1551632811-561730d164a1?auto=format&fit=crop&q=80&w=600"} 
-                  alt="Detail 1" 
-                  className={`w-full h-full ${activeProject.id === '04' ? 'object-contain' : 'object-cover'} opacity-100 transition-all duration-700 hover:scale-105`} 
-                  loading="lazy"
-                />
-               </div>
-              <div 
-                className={`${activeProject.id === '04' ? 'aspect-[3/4]' : 'aspect-square'} bg-surface-dim/30 overflow-hidden cursor-zoom-in group`}
-                onClick={() => setExpandedIndex(2)}
-              >
-                 <img 
-                  src={activeProject.detailImages?.[1] || "https://images.unsplash.com/photo-1614743224377-669be740e557?auto=format&fit=crop&q=80&w=600"} 
-                  alt="Detail 2" 
-                  className={`w-full h-full ${activeProject.id === '04' ? 'object-contain' : 'object-cover'} opacity-100 transition-all duration-700 hover:scale-105`} 
-                  loading="lazy"
-                />
-              </div>
+              {topGalleryImages.map((mediaSrc, idx) => {
+                const isVideo = !!(getYoutubeId(mediaSrc) || /(\.mp4|\.webm|\.mov)/i.test(mediaSrc));
+                const fallbackImg = idx === 3 && isGlove 
+                  ? (activeProject.detailImages?.[2] || '/images/projects/04-corium-glove/detail-1.avif') 
+                  : (activeProject.detailImages?.[idx - 1] || activeProject.image);
+
+                return (
+                  <div 
+                    key={idx}
+                    className={`${isGlove ? 'aspect-[3/4]' : 'aspect-[4/5]'} bg-surface-dim/30 overflow-hidden cursor-zoom-in group relative`}
+                    onClick={() => setExpandedIndex(idx)}
+                  >
+                    {isVideo ? (
+                      <div className="w-full h-full relative">
+                        <ProcessVideoPlayer 
+                          videoUrl={mediaSrc} 
+                          imageUrl={fallbackImg} 
+                          title={`${activeProject.title} Wear Test Video`} 
+                          aspectRatio="portrait"
+                        />
+                      </div>
+                    ) : (
+                      <img 
+                        src={mediaSrc} 
+                        alt={`${activeProject.title} view ${idx + 1}`} 
+                        className={`w-full h-full ${isGlove ? 'object-contain' : 'object-cover'} opacity-100 transition-all duration-700 group-hover:scale-105`} 
+                        style={idx === 0 && activeProject.objectPosition ? { objectPosition: activeProject.objectPosition } : undefined}
+                        loading={idx > 1 ? "lazy" : "eager"}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </motion.div>
           </div>
 
-          <div className="space-y-12 h-full flex flex-col">
-            <div className="hidden lg:block">
-              <p className="text-technical-label text-dynasty mb-4">2026 // SELECTED WORKS</p>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter uppercase leading-[0.85] mb-6">
-                {activeProject.title}
-              </h1>
-              <div className="flex justify-between items-start">
-                <p className="text-xl md:text-2xl text-gray-500 uppercase tracking-tight leading-snug max-w-md">
+          <div className="flex flex-col h-full justify-between">
+            <div className="flex flex-col">
+              <div className="hidden lg:block pb-6 border-b border-outline">
+                <div className="inline-flex items-center border border-outline px-2 py-0.5 text-[10px] font-mono tracking-wider text-dynasty mb-3 uppercase rounded-sm bg-surface-dim/20">
+                  2026 // SELECTED WORKS
+                </div>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight uppercase leading-tight text-charcoal">
+                  {activeProject.title}
+                </h1>
+                <p className="text-sm md:text-base text-gray-500 uppercase tracking-wide leading-relaxed mt-2">
                   {activeProject.subtitle}
                 </p>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-8 border-t border-outline pt-8">
-              <div>
-                <p className="text-technical-label text-gray-400 mb-2">Movement</p>
-                <p className="text-data-mono text-lg">{activeProject.specs.movement}</p>
-              </div>
-              <div>
-                <p className="text-technical-label text-gray-400 mb-2">Weight</p>
-                <p className="text-data-mono text-lg">{activeProject.specs.weight}</p>
-              </div>
-              <div>
-                <p className="text-technical-label text-gray-400 mb-2">Material</p>
-                <p className="text-data-mono text-lg">{activeProject.specs.material}</p>
-              </div>
-              <div>
-                <p className="text-technical-label text-gray-400 mb-2">Design Status</p>
-                <p className="text-data-mono text-lg">
-                  {activeProject.id === '01' ? 'V4 Prototype under Development' : 'Production Ready'}
+              <div className="py-6 border-b border-outline">
+                <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+                  {activeProject.technicalOverview || (isPack 
+                    ? 'The Alptour is a modular alpine system designed for approach-to-summit efficiency. Constructed from Ultra 200X, it balances extreme abrasion resistance with a weight-to-volume ratio optimized for sustained vertical movement.'
+                    : `Engineered for high-output movement in variable alpine conditions. The ${activeProject.title} utilizes a hyper-breathable shell combined with strategic wind-resistant paneling.`)}
                 </p>
               </div>
+
+              <div className="py-6 border-b border-outline">
+                <h3 className="text-xs font-semibold tracking-wider uppercase text-charcoal mb-4">Key Features</h3>
+                <ul className="space-y-3.5">
+                  {((activeProject.keyFeatures || (isPack ? [
+                    "Dual ice-tool attachments with pick-protection",
+                    "A-frame and diagonal ski carry compatibility",
+                    "Removable HDPE framesheet with AL stay",
+                    "Ultra 200X high-tenacity composite construction",
+                    "Roll-top closure for +/- 10L volume flexibility"
+                  ] : [
+                    "Anatomical shaping for fit and comfort",
+                    "Articulated elbows for unrestricted mobility",
+                    "Gusseted underarms for lift-off protection",
+                    "Adjustable StormHood™ with laminated brim",
+                    "Hem drawcord seals out drafts"
+                  ]))).map((feature, i) => (
+                    <li key={i} className="flex gap-3 items-start text-sm text-gray-600">
+                      <span className="w-1.5 h-1.5 bg-dynasty mt-1.5 shrink-0" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
-            <div className="space-y-6">
-              <h3 className="text-technical-label border-b border-outline pb-2">Technical Overview</h3>
-              <p className="text-gray-600 leading-relaxed">
-                {activeProject.technicalOverview || (activeProject.id === '01' 
-                  ? 'The Alptour is a modular alpine system designed for approach-to-summit efficiency. Constructed from Ultra 200X, it balances extreme abrasion resistance with a weight-to-volume ratio optimized for sustained vertical movement.'
-                  : `Engineered for high-output movement in variable alpine conditions. The ${activeProject.title} utilizes a hyper-breathable shell combined with strategic wind-resistant paneling.`)}
-              </p>
-            </div>
-
-            <div className="space-y-6 flex-grow">
-              <h3 className="text-technical-label border-b border-outline pb-2">Key Features</h3>
-              <ul className="space-y-4">
-                {((activeProject.keyFeatures || (activeProject.id === '01' ? [
-                  "Dual ice-tool attachments with pick-protection",
-                  "A-frame and diagonal ski carry compatibility",
-                  "Removable HDPE framesheet with AL stay",
-                  "Ultra 200X high-tenacity composite construction",
-                  "Roll-top closure for +/- 10L volume flexibility"
-                ] : [
-                  "Anatomical shaping for fit and comfort",
-                  "Articulated elbows for unrestricted mobility",
-                  "Gusseted underarms for lift-off protection",
-                  "Adjustable StormHood™ with laminated brim",
-                  "Hem drawcord seals out drafts"
-                ]))).map((feature, i) => (
-                  <li key={i} className="flex gap-4 items-start text-sm text-gray-600">
-                    <span className="w-1.5 h-1.5 bg-dynasty mt-1.5 shrink-0" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {isGlove && (
+              <div className="pt-6 pb-0 lg:mt-auto">
+                <h3 className="text-xs font-semibold tracking-wider uppercase text-dynasty mb-3">
+                  Direct Orders
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                  Small-batch pairs built by hand. Direct orders and field tester inquiries are handled directly via Instagram DM or email.
+                </p>
+                <div className="flex flex-wrap items-center gap-6">
+                  <a 
+                    href="https://www.instagram.com/nihilalpine/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-xs font-semibold tracking-wider normal-case text-charcoal hover:text-dynasty transition-colors"
+                  >
+                    <Instagram className="w-3.5 h-3.5 animate-none" />
+                    <span>@nihilalpine</span>
+                  </a>
+                  <a 
+                    href="mailto:tannerbgerrard@gmail.com?subject=Corium%20Glove%20Order" 
+                    className="inline-flex items-center gap-2 text-xs font-semibold tracking-wider text-charcoal hover:text-dynasty transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>tannerbgerrard@gmail.com</span>
+                  </a>
+                </div>
+              </div>
+            )}
 
           </div>
         </div>
       </section>
 
-      {activeProject.id === '04' ? (
+      {isGlove ? (
         <section className="mt-16 px-8 md:px-10 lg:px-12 border-t border-outline/40 pt-12">
           <div className="grid grid-cols-1 lg:landscape:grid-cols-3 gap-12 lg:gap-16 items-start">
             
             {/* Left 1/3: Header */}
             <div className="col-span-1">
               <h3 className="text-technical-label text-dynasty mb-4 tracking-[0.3em]">System Anatomy</h3>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter uppercase leading-[0.85]">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight uppercase leading-tight text-charcoal">
                 Corium Schematic.
               </h2>
             </div>
@@ -830,7 +951,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
               </div>
               
               <blockquote className="text-2xl md:text-3xl lg:text-4xl font-extralight italic text-charcoal/90 leading-tight">
-                {activeProject.designQuote || (activeProject.id === '01' 
+                {activeProject.designQuote || (isPack 
                   ? '"The heaviest part of the climb is the approach, so why carry the same pack for both?"'
                   : '"We don\'t solve for comfort; we solve for survival in movement."')}
               </blockquote>
@@ -840,7 +961,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                   activeProject.designNarrative.map((para, i) => (
                     <p key={i}>{para}</p>
                   ))
-                ) : activeProject.id === '01' ? (
+                ) : isPack ? (
                   <p>
                     The Alptour Pack was conceived on technical approaches where volume matters most, collapsing from a durable 45L load carrier to a high-stability 25L summit pack. It tests the limits of Ultra 200X composites and procedural patterning.
                   </p>
@@ -855,7 +976,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
             {/* Right Column: Wireframe / StaticSchematic */}
             <div className="lg:col-span-5 min-w-0 max-w-full flex flex-col justify-center overflow-hidden">
               <div className="relative w-full max-w-full flex flex-col items-center justify-center py-4 overflow-hidden">
-                <StaticSchematic projectId={activeProject.id} />
+                <StaticSchematic projectId={activeProject.id} isGlove={isGlove} />
               </div>
             </div>
 
@@ -864,10 +985,10 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
       )}
 
       {activeProject.process && (
-        <section className={`${activeProject.id === '04' ? 'mt-20 pt-12' : 'mt-48 pt-24'} px-8 md:px-10 lg:px-12 border-t border-outline`}>
+        <section className={`${isGlove ? 'mt-20 pt-12' : 'mt-48 pt-24'} px-8 md:px-10 lg:px-12 border-t border-outline`}>
           <div className="mb-20">
             <h3 className="text-technical-label text-dynasty mb-4 tracking-[0.3em]">Process Archive</h3>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter uppercase leading-[0.85]">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight uppercase leading-tight text-charcoal">
               From Sketch <br/>to System.
             </h2>
           </div>
@@ -887,12 +1008,17 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                   >
                     <div 
                       className="bg-charcoal overflow-hidden group cursor-zoom-in relative aspect-video portrait:aspect-[3/4] lg:aspect-video w-full rounded-none border-0 shadow-lg"
-                      onClick={() => setExpandedIndex(3 + idx)}
+                      onClick={() => {
+                        const media = item.video || item.image;
+                        const mediaIdx = zoomableImages.indexOf(media);
+                        setExpandedIndex(mediaIdx >= 0 ? mediaIdx : 0);
+                      }}
                     >
                       <ProcessVideoPlayer 
                         videoUrl={item.video} 
                         imageUrl={item.image} 
                         title={item.title} 
+                        aspectRatio="landscape"
                       />
                     </div>
                   </motion.div>
@@ -910,7 +1036,11 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                 >
                   <div 
                     className={`${item.aspect || activeProject.processGridAspect || 'aspect-[4/3]'} bg-charcoal/20 overflow-hidden group cursor-zoom-in relative rounded-none border-0 shadow-sm relative`}
-                    onClick={() => setExpandedIndex(3 + idx)}
+                    onClick={() => {
+                      const media = item.video || item.image;
+                      const mediaIdx = zoomableImages.indexOf(media);
+                      setExpandedIndex(mediaIdx >= 0 ? mediaIdx : 0);
+                    }}
                   >
                     <img 
                       src={item.image} 
@@ -1016,12 +1146,28 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                     const ytId = getYoutubeId(expandedImage);
                     const isDirectVideo = /(\.mp4|\.webm|\.mov)/i.test(expandedImage);
                     if (ytId || isDirectVideo) {
+                      // Determine if there is a 4K YouTube URL to use for expanded lightbox mode
+                      let modalVideoUrl = expandedImage;
+                      if (activeProject.youtubeUrl) {
+                        if (expandedIndex === 3 || expandedImage === activeProject.video) {
+                          modalVideoUrl = activeProject.youtubeUrl;
+                        } else {
+                          const matchedProcess = activeProject.process?.find(p => p.video === expandedImage || p.image === expandedImage);
+                          if (matchedProcess?.youtubeUrl) {
+                            modalVideoUrl = matchedProcess.youtubeUrl;
+                          }
+                        }
+                      }
+
+                      const matchedProcess = activeProject.process?.find(p => p.video === expandedImage || p.image === expandedImage);
+                      const computedAspect = matchedProcess?.aspect || 'aspect-[16/9]';
+
                       return (
                         <ExpandedVideoPlayer 
-                          videoUrl={expandedImage}
+                          videoUrl={modalVideoUrl}
                           fallbackImage={fallbackImageForExpandedView}
                           title="Process view"
-                          aspect={activeProject.process && expandedIndex >= 3 ? activeProject.process[expandedIndex - 3].aspect : undefined}
+                          aspect={computedAspect}
                         />
                       );
                     }
