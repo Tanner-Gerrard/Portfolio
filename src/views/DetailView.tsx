@@ -188,6 +188,19 @@ const ExpandedVideoPlayer = ({
     };
   }, [ytId]);
 
+  React.useEffect(() => {
+    if (ytId) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.play().catch(() => {});
+  }, [videoUrl, ytId]);
+
   if (ytId) {
     const isPortraitForced = aspect.includes('aspect-[3/4]') || aspect.includes('aspect-[4/5]');
     const aspectClass = isPortraitForced 
@@ -255,10 +268,27 @@ const ProcessVideoPlayer = ({
   const isPortrait = aspectRatio === 'portrait';
 
   React.useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = true;
-      videoRef.current.defaultMuted = true;
-      videoRef.current.play().catch(() => {});
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Fallback: retry play on user interaction if autoplay was blocked
+        const handleInteraction = () => {
+          video.play().catch(() => {});
+          window.removeEventListener('touchstart', handleInteraction);
+          window.removeEventListener('click', handleInteraction);
+        };
+        window.addEventListener('touchstart', handleInteraction, { once: true });
+        window.addEventListener('click', handleInteraction, { once: true });
+      });
     }
   }, [videoUrl]);
 
@@ -291,6 +321,11 @@ const ProcessVideoPlayer = ({
           playsInline
           preload="auto"
           className="w-full h-full object-cover"
+          onLoadedMetadata={(e) => {
+            const v = e.currentTarget;
+            v.muted = true;
+            v.play().catch(() => {});
+          }}
         />
       )}
     </div>
@@ -665,12 +700,18 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
   const heroImage = activeProject.image;
   const detail1 = activeProject.detailImages?.[0] || "https://images.unsplash.com/photo-1551632811-561730d164a1?auto=format&fit=crop&q=80&w=600";
   const detail2 = activeProject.detailImages?.[1] || "https://images.unsplash.com/photo-1614743224377-669be740e557?auto=format&fit=crop&q=80&w=600";
-  const projectVideo = activeProject.video || activeProject.process?.find(p => p.video)?.video;
-  const detail3 = projectVideo || activeProject.detailImages?.[2] || activeProject.process?.[0]?.image || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600";
   
-  const topGalleryImages = [heroImage, detail1, detail2, detail3];
+  // Inline preview in top grid: MP4 video
+  const previewVideo = activeProject.video || activeProject.process?.find(p => p.video)?.video || activeProject.youtubeUrl;
+  const detail3Preview = previewVideo || activeProject.detailImages?.[2] || activeProject.process?.[0]?.image || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600";
+  
+  const topGalleryImages = [heroImage, detail1, detail2, detail3Preview];
 
-  const zoomableImages: string[] = [...topGalleryImages];
+  // Gallery / Lightbox expanded view: 4K YouTube video
+  const galleryVideo = activeProject.youtubeUrl || activeProject.process?.find(p => p.youtubeUrl)?.youtubeUrl || activeProject.video || activeProject.process?.find(p => p.video)?.video;
+  const detail3Gallery = galleryVideo || activeProject.detailImages?.[2] || activeProject.process?.[0]?.image || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600";
+
+  const zoomableImages: string[] = [heroImage, detail1, detail2, detail3Gallery];
   if (activeProject.process) {
     activeProject.process.forEach(item => {
       const media = item.youtubeUrl || item.video || item.image;
@@ -962,7 +1003,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
           {/* Reverted Layout: Three-wide for images, and full-width for video elements */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 md:gap-x-12 gap-y-16 items-start">
             {activeProject.process.map((item, idx) => {
-              const videoSrc = item.youtubeUrl || item.video;
+              const videoSrc = item.video || item.youtubeUrl;
               if (videoSrc) {
                 return (
                   <motion.div 
@@ -1158,6 +1199,17 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                       <p className="text-white/60 text-xs sm:text-sm leading-relaxed font-light">
                         {caption.description}
                       </p>
+                      {expandedImage && getYoutubeId(expandedImage) && (
+                        <a 
+                          href={`https://www.youtube.com/watch?v=${getYoutubeId(expandedImage)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 mt-4 text-[11px] font-mono tracking-wider text-dynasty hover:text-white transition-colors duration-200 uppercase"
+                        >
+                          <span>Open on YouTube (4K)</span>
+                          <ArrowUpRight className="w-3.5 h-3.5" />
+                        </a>
+                      )}
                     </motion.div>
                   );
                 })()}
