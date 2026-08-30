@@ -644,53 +644,60 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
         description: activeProject.subtitle,
       };
     }
-    if (index === 1) {
+    const currentMedia = zoomableImages[index];
+    if (!currentMedia) return null;
+
+    const matchedItem = activeProject.process?.find(p => (p.youtubeUrl || p.video || p.image) === currentMedia);
+    if (matchedItem) {
       return {
-        phase: `DETAIL // 01`,
-        title: `ANATOMICAL REFINEMENT`,
-        description: isGlove
-          ? `Detailed close-up study of the 0.8mm technical leather wrapping technique, highlighting the monolithic material usage and pure leather texture.`
-          : `Macro analysis of secondary interfaces, seam construction integrity, and face fabrics interaction.`,
+        phase: matchedItem.phase,
+        title: matchedItem.title,
+        description: matchedItem.description,
       };
     }
-    if (index === 2) {
+
+    const isVideoMedia = !!(getYoutubeId(currentMedia) || /(\.mp4|\.webm|\.mov)/i.test(currentMedia));
+    if (isVideoMedia) {
       return {
-        phase: `DETAIL // 02`,
-        title: `INTERFACE EXECUTION`,
+        phase: `PHASE 05 // PROTO ASSEMBLY`,
+        title: isGlove ? `ANATOMICAL GLOVE INTERFACE` : `${activeProject.title.toUpperCase()} WEAR TEST`,
         description: isGlove
-          ? `Detailed inspection of the low-profile recessed wrist closure and high-strength UHMWPE stitching paths.`
-          : `High-resolution detail of mechanical zippers, closure channels, and functional trim integrations.`,
+          ? `Real-time wear-testing of the active-fit assembly. Demonstrating the snug wrapping technique, perfect anatomical fit, dynamic finger articulation, and absolute tactile sensitivity.`
+          : `Real-time field and wear-testing demonstrating garment performance, articulation, and mobility.`,
       };
     }
-    if (index === 3) {
-      const topMedia = topGalleryImages[3];
-      const isVideoMedia = !!(getYoutubeId(topMedia) || /(\.mp4|\.webm|\.mov)/i.test(topMedia));
-      if (isVideoMedia) {
+
+    if (activeProject.detailImages) {
+      const detailIdx = activeProject.detailImages.indexOf(currentMedia);
+      if (detailIdx === 0) {
         return {
-          phase: `PHASE 05 // PROTO ASSEMBLY`,
-          title: `ANATOMICAL GLOVE INTERFACE`,
-          description: `Real-time wear-testing of the active-fit assembly. Demonstrating the snug wrapping technique, perfect anatomical fit, dynamic finger articulation, and absolute tactile sensitivity.`,
+          phase: `DETAIL // 01`,
+          title: `ANATOMICAL REFINEMENT`,
+          description: isGlove
+            ? `Detailed close-up study of the 0.8mm technical leather wrapping technique, highlighting the monolithic material usage and pure leather texture.`
+            : `Macro analysis of secondary interfaces, seam construction integrity, and face fabrics interaction.`,
         };
       }
-      return {
-        phase: `DETAIL // 03`,
-        title: `MATERIAL & FUNCTIONAL TESTING`,
-        description: isGlove
-          ? `Anatomical pattern testing and seam stress analysis under active strain.`
-          : `Structural analysis of load-bearing zones and composite material behavior.`,
-      };
-    }
-    if (index >= 4) {
-      const currentMedia = zoomableImages[index];
-      const matchedItem = activeProject.process?.find(p => (p.youtubeUrl || p.video || p.image) === currentMedia);
-      if (matchedItem) {
+      if (detailIdx === 1) {
         return {
-          phase: matchedItem.phase,
-          title: matchedItem.title,
-          description: matchedItem.description,
+          phase: `DETAIL // 02`,
+          title: `INTERFACE EXECUTION`,
+          description: isGlove
+            ? `Detailed inspection of the low-profile recessed wrist closure and high-strength UHMWPE stitching paths.`
+            : `High-resolution detail of mechanical zippers, closure channels, and functional trim integrations.`,
+        };
+      }
+      if (detailIdx >= 2) {
+        return {
+          phase: `DETAIL // 0${detailIdx + 1}`,
+          title: `MATERIAL & FUNCTIONAL TESTING`,
+          description: isGlove
+            ? `Anatomical pattern testing and seam stress analysis under active strain.`
+            : `Structural analysis of load-bearing zones and composite material behavior.`,
         };
       }
     }
+
     return null;
   };
 
@@ -767,26 +774,26 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
     touchStartY.current = null;
   };
 
-  // Formulate the ordered list of expand-enabled zoom images matching the reading layout order
-  const heroImage = activeProject.image;
-  const detail1 = activeProject.detailImages?.[0] || "https://images.unsplash.com/photo-1551632811-561730d164a1?auto=format&fit=crop&q=80&w=600";
-  const detail2 = activeProject.detailImages?.[1] || "https://images.unsplash.com/photo-1614743224377-669be740e557?auto=format&fit=crop&q=80&w=600";
-  
-  // Inline preview in top grid: MP4 video
-  const previewVideo = activeProject.video || activeProject.process?.find(p => p.video)?.video || activeProject.youtubeUrl;
-  const detail3Preview = previewVideo || activeProject.detailImages?.[2] || activeProject.process?.[0]?.image || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600";
-  
-  const topGalleryImages = [heroImage, detail1, detail2, detail3Preview];
-
-  // Gallery / Lightbox expanded view: 4K YouTube video
+  // Lightbox expanded view media list
   const galleryVideo = activeProject.youtubeUrl || activeProject.process?.find(p => p.youtubeUrl)?.youtubeUrl || activeProject.video || activeProject.process?.find(p => p.video)?.video;
-  const detail3Gallery = galleryVideo || activeProject.detailImages?.[2] || activeProject.process?.[0]?.image || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600";
-
-  const zoomableImages: string[] = [heroImage, detail1, detail2, detail3Gallery];
+  const zoomableImages: string[] = [];
+  if (activeProject.image) {
+    zoomableImages.push(activeProject.image);
+  }
+  if (activeProject.detailImages && activeProject.detailImages.length > 0) {
+    activeProject.detailImages.forEach((img) => {
+      if (img && !zoomableImages.includes(img)) {
+        zoomableImages.push(img);
+      }
+    });
+  }
+  if (galleryVideo && !zoomableImages.includes(galleryVideo)) {
+    zoomableImages.push(galleryVideo);
+  }
   if (activeProject.process) {
     activeProject.process.forEach(item => {
       const media = item.youtubeUrl || item.video || item.image;
-      if (!zoomableImages.includes(media)) {
+      if (media && !zoomableImages.includes(media)) {
         zoomableImages.push(media);
       }
     });
@@ -795,14 +802,15 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
   const getFallbackImage = () => {
     if (expandedIndex === null) return '';
     const currentMedia = zoomableImages[expandedIndex];
-    if (expandedIndex === 3 && isGlove) {
+    if (!currentMedia) return activeProject.image || '';
+    if (isGlove && (getYoutubeId(currentMedia) || /(\.mp4|\.webm|\.mov)/i.test(currentMedia))) {
       return activeProject.detailImages?.[2] || '/images/projects/04-corium-glove/detail-1.avif';
     }
     const matchedItem = activeProject.process?.find(p => (p.youtubeUrl || p.video || p.image) === currentMedia);
     if (matchedItem?.image) {
       return matchedItem.image;
     }
-    return currentMedia || '';
+    return activeProject.image || currentMedia || '';
   };
   const fallbackImageForExpandedView = getFallbackImage();
 
@@ -848,9 +856,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
     <main className="max-w-[1600px] mx-auto pt-6 pb-32">
       <section className="px-8 md:px-10 lg:px-12">
         <div className="lg:hidden mb-8 pb-6 border-b border-outline">
-          <div className="inline-flex items-center border border-outline px-2 py-0.5 text-[10px] font-mono tracking-wider text-dynasty mb-3 uppercase rounded-sm bg-surface-dim/20">
-            2026 // SELECTED WORKS
-          </div>
+          <p className="text-technical-label text-dynasty mb-2">selected works // 2026</p>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight uppercase leading-tight text-charcoal">
             {activeProject.title}
           </h1>
@@ -865,51 +871,29 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-2 gap-3 sm:gap-4"
+              className="w-full"
             >
-              {topGalleryImages.map((mediaSrc, idx) => {
-                const isVideo = !!(getYoutubeId(mediaSrc) || /(\.mp4|\.webm|\.mov)/i.test(mediaSrc));
-                const fallbackImg = idx === 3 && isGlove 
-                  ? (activeProject.detailImages?.[2] || '/images/projects/04-corium-glove/detail-1.avif') 
-                  : (activeProject.detailImages?.[idx - 1] || activeProject.image);
-
-                return (
-                  <div 
-                    key={idx}
-                    className={`${isGlove ? 'aspect-[3/4]' : 'aspect-[4/5]'} bg-surface-dim/30 overflow-hidden cursor-zoom-in group relative`}
-                    onClick={() => setExpandedIndex(idx)}
-                  >
-                    {isVideo ? (
-                      <div className="w-full h-full relative">
-                        <ProcessVideoPlayer 
-                          videoUrl={mediaSrc} 
-                          imageUrl={fallbackImg} 
-                          fallbackYoutubeUrl={activeProject.youtubeUrl}
-                          title={`${activeProject.title} Wear Test Video`} 
-                          aspectRatio="portrait"
-                        />
-                      </div>
-                    ) : (
-                      <img 
-                        src={mediaSrc} 
-                        alt={`${activeProject.title} view ${idx + 1}`} 
-                        className={`w-full h-full ${isGlove ? 'object-contain' : 'object-cover'} opacity-100 transition-all duration-700 group-hover:scale-105`} 
-                        style={idx === 0 && activeProject.objectPosition ? { objectPosition: activeProject.objectPosition } : undefined}
-                        loading={idx > 1 ? "lazy" : "eager"}
-                      />
-                    )}
-                  </div>
-                );
-              })}
+              <div 
+                className={`${
+                  isGlove ? 'aspect-[3/4]' : 'aspect-[4/5]'
+                } bg-surface-dim/30 overflow-hidden cursor-zoom-in group relative w-full`}
+                onClick={() => setExpandedIndex(0)}
+              >
+                <img 
+                  src={activeProject.image} 
+                  alt={activeProject.title} 
+                  className={`w-full h-full ${isGlove ? 'object-contain' : 'object-cover'} opacity-100 transition-all duration-700 group-hover:scale-105`} 
+                  style={activeProject.objectPosition ? { objectPosition: activeProject.objectPosition } : undefined}
+                  loading="eager"
+                />
+              </div>
             </motion.div>
           </div>
 
           <div className="flex flex-col h-full justify-between">
             <div className="flex flex-col">
               <div className="hidden lg:block pb-6 border-b border-outline">
-                <div className="inline-flex items-center border border-outline px-2 py-0.5 text-[10px] font-mono tracking-wider text-dynasty mb-3 uppercase rounded-sm bg-surface-dim/20">
-                  2026 // SELECTED WORKS
-                </div>
+                <p className="text-technical-label text-dynasty mb-2">selected works // 2026</p>
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight uppercase leading-tight text-charcoal">
                   {activeProject.title}
                 </h1>
@@ -984,7 +968,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
         </div>
       </section>
 
-      {isGlove ? (
+      {isGlove && (
         <section className="mt-16 px-8 md:px-10 lg:px-12 border-t border-outline/40 pt-12">
           <div className="grid grid-cols-1 lg:landscape:grid-cols-3 gap-12 lg:gap-16 items-start">
             
@@ -1014,49 +998,6 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
                   referrerPolicy="no-referrer"
                 />
               </picture>
-            </div>
-
-          </div>
-        </section>
-      ) : (
-        <section className="mt-32 px-8 md:px-10 lg:px-12 border-t border-outline/40 pt-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 xl:gap-24 items-center">
-            
-            {/* Left Column: High-Impact Typography & Narrative */}
-            <div className="lg:col-span-7 min-w-0 max-w-full space-y-8 overflow-hidden">
-              <div className="inline-flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-[#ce2c21]" />
-                <h3 className="text-xs font-mono text-[#ce2c21] tracking-[0.3em] uppercase">DESIGN NARRATIVE</h3>
-              </div>
-              
-              <blockquote className="text-2xl md:text-3xl lg:text-4xl font-extralight italic text-charcoal/90 leading-tight">
-                {activeProject.designQuote || (isPack 
-                  ? '"The heaviest part of the climb is the approach, so why carry the same pack for both?"'
-                  : '"We don\'t solve for comfort; we solve for survival in movement."')}
-              </blockquote>
-              
-              <div className="text-stone-500 space-y-6 text-sm md:text-base leading-relaxed font-light">
-                {activeProject.designNarrative ? (
-                  activeProject.designNarrative.map((para, i) => (
-                    <p key={i}>{para}</p>
-                  ))
-                ) : isPack ? (
-                  <p>
-                    The Alptour Pack was conceived on technical approaches where volume matters most, collapsing from a durable 45L load carrier to a high-stability 25L summit pack. It tests the limits of Ultra 200X composites and procedural patterning.
-                  </p>
-                ) : (
-                  <p>
-                    Born out of necessity for a micro-climate between a windbreaker and a full shell. By deploying laser venting in maximum heat zones and high-tenacity ripstops at exposure zones, the garment functions as an active auxiliary layer that disappears on the body.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Right Column: Wireframe / StaticSchematic */}
-            <div className="lg:col-span-5 min-w-0 max-w-full flex flex-col justify-center overflow-hidden">
-              <div className="relative w-full max-w-full flex flex-col items-center justify-center py-4 overflow-hidden">
-                <StaticSchematic projectId={activeProject.id} isGlove={isGlove} />
-              </div>
             </div>
 
           </div>

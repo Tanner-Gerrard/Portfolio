@@ -36,7 +36,7 @@ export const ConnectView = ({ view, navTo, isMenuOpen, setIsMenuOpen }: ViewProp
                 href="https://www.instagram.com/nihilalpine/" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex gap-2 items-center text-technical-label normal-case text-charcoal hover:text-dynasty transition-colors font-medium"
+                className="flex gap-2.5 items-center font-sans text-base font-medium lowercase text-charcoal hover:text-dynasty transition-colors"
               >
                 <Instagram className="w-5 h-5" /> @nihilalpine
               </a>
@@ -45,9 +45,9 @@ export const ConnectView = ({ view, navTo, isMenuOpen, setIsMenuOpen }: ViewProp
                 href="https://www.linkedin.com/in/tanner-gerrard-8376241ba" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex gap-2 items-center text-technical-label text-charcoal hover:text-dynasty transition-colors font-medium"
+                className="flex gap-2.5 items-center font-sans text-base font-medium text-charcoal hover:text-dynasty transition-colors"
               >
-                <Linkedin className="w-4 h-4" /> LinkedIn
+                <Linkedin className="w-5 h-5" /> LinkedIn
               </a>
             </div>
           </div>
