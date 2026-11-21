@@ -881,7 +881,7 @@ export const DetailView = ({ view, navTo, isMenuOpen, setIsMenuOpen, activeProje
               >
                 <img 
                   src={activeProject.image} 
-                  alt={activeProject.title} 
+                  alt={`${activeProject.title} — ${activeProject.subtitle} by Tanner Gerrard`} 
                   className={`w-full h-full ${isGlove ? 'object-contain' : 'object-cover'} opacity-100 transition-all duration-700 group-hover:scale-105`} 
                   style={activeProject.objectPosition ? { objectPosition: activeProject.objectPosition } : undefined}
                   loading="eager"

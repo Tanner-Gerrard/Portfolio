@@ -1,8 +1,17 @@
+# Dependencies
 node_modules/
-build/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build outputs & tooling
 dist/
+build/
 coverage/
+.wrangler/
+
+# OS & logs
 .DS_Store
 *.log
-.env*
-!.env.example

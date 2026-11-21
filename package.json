@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-route-html.mjs",
     "fallow": "fallow",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "verify:build": "node scripts/verify-site.mjs --build",
+    "verify:live": "node scripts/verify-site.mjs --live"
   },
   "dependencies": {
     "lucide-react": "^0.546.0",

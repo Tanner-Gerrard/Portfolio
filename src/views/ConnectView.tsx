@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, Linkedin, Mail, ArrowUpRight, MessageSquare } from 'lucide-react';
+import { Instagram, Linkedin } from 'lucide-react';
 import { ViewProps } from '../types';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
@@ -57,7 +57,7 @@ export const ConnectView = ({ view, navTo, isMenuOpen, setIsMenuOpen }: ViewProp
       <div className="aspect-[3/4] lg:aspect-auto h-full max-h-[80vh] bg-charcoal relative overflow-hidden group">
         <img 
           src={imgConnect} 
-          alt="Tanner Gerrard" 
+          alt="Tanner Gerrard — Softgoods and Technical Apparel Designer in Utah" 
           className="w-full h-full object-cover transition-all duration-700" 
           loading="lazy"
         />

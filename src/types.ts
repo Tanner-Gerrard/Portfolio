@@ -32,9 +32,11 @@ export interface Project {
   }[];
 }
 
+export type ViewType = 'index' | 'detail' | 'connect' | 'work' | 'not-found';
+
 export interface ViewProps {
-  view: 'index' | 'detail' | 'connect';
-  navTo: (newView: 'index' | 'detail' | 'connect', project?: Project) => void;
+  view: ViewType;
+  navTo: (newView: 'index' | 'detail' | 'connect' | 'work', project?: Project) => void;
   isMenuOpen: boolean;
   setIsMenuOpen: (isOpen: boolean) => void;
 }

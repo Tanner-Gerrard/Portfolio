@@ -59,29 +59,36 @@ export const IndexView = ({ view, navTo, isMenuOpen, setIsMenuOpen, showMobileHe
 
           <nav 
             className="flex flex-col space-y-0 border-t border-outline"
+            aria-label="Selected Projects"
             onMouseLeave={() => setHoveredProject(null)}
           >
             {PROJECTS.map((project) => (
-              <button
+              <a
                 key={project.id}
+                href={`/project/${project.id}`}
                 onMouseEnter={() => setHoveredProject(project)}
-                onClick={() => handleProjectClick(project)}
-                className="group w-full text-left py-6 border-b border-outline transition-all duration-300"
+                onClick={(e) => {
+                  if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button === 0) {
+                    e.preventDefault();
+                    handleProjectClick(project);
+                  }
+                }}
+                className="block group w-full text-left py-6 border-b border-outline transition-all duration-300"
               >
                 <div className="flex items-center justify-between relative z-10 w-full min-w-0">
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-3">
                       <span className="text-data-mono text-gray-300">{project.id}</span>
-                      <h3 className="text-xl font-medium tracking-tight uppercase transition-colors group-hover:text-dynasty">
+                      <h2 className="text-xl font-medium tracking-tight uppercase transition-colors group-hover:text-dynasty">
                         {project.title}
-                      </h3>
+                      </h2>
                     </div>
                     <p className="text-technical-label text-gray-400 truncate pr-4">
                       {project.subtitle}
                     </p>
                   </div>
                 </div>
-              </button>
+              </a>
             ))}
           </nav>
         </main>
@@ -93,7 +100,7 @@ export const IndexView = ({ view, navTo, isMenuOpen, setIsMenuOpen, showMobileHe
       <AnimatePresence mode="popLayout">
         <motion.div
           key={hoveredProject ? hoveredProject.id : 'base'}
-          className="absolute inset-0 cursor-pointer"
+          className={`absolute inset-0 ${hoveredProject ? 'cursor-pointer' : 'cursor-default'}`}
           onClick={() => hoveredProject && handleProjectClick(hoveredProject)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -102,17 +109,17 @@ export const IndexView = ({ view, navTo, isMenuOpen, setIsMenuOpen, showMobileHe
         >
           <img
             src={hoveredProject ? hoveredProject.image : BASE_IMAGE}
-            alt={hoveredProject ? hoveredProject.title : "Tanner Gerrard"}
+            alt={hoveredProject ? `${hoveredProject.title} — ${hoveredProject.subtitle}` : "Tanner Gerrard — Softgoods and Technical Apparel Designer"}
             className="w-full h-full object-cover transition-all duration-700"
             style={{ objectPosition: hoveredProject?.objectPosition || 'center' }}
           />
-          <div className="absolute inset-0 bg-charcoal/20 z-10 mix-blend-overlay" />
-          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent z-20" />
+          <div className="absolute inset-0 bg-charcoal/20 z-10 mix-blend-overlay pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent z-20 pointer-events-none" />
         </motion.div>
       </AnimatePresence>
 
       {hoveredProject && (
-        <div className="absolute bottom-12 right-12 z-30 flex flex-col items-end gap-8 text-white">
+        <div className="absolute bottom-12 right-12 z-30 flex flex-col items-end gap-8 text-white pointer-events-none">
           <div className="flex flex-col items-end">
             <p className="text-technical-label opacity-40 mb-1">Movement</p>
             <p className="text-data-mono text-lg text-right">{hoveredProject.specs.movement}</p>
